@@ -70,7 +70,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Africa/Nairobi',
 
     /*
     |--------------------------------------------------------------------------
@@ -184,5 +184,10 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
+
+
+    // user defined by Sir Dommy to handle superadmin auhtentication on13/05/2024
+    'superadmins' => env('SUPERADMINS', ''),
+
 
 ];
