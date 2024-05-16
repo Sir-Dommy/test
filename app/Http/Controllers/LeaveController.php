@@ -14,6 +14,7 @@ use App\Models\Leave_applications;
 use App\Models\Hod_profiles;
 use App\Models\Holiday_types;
 use App\Models\Ps_profiles;
+use App\Models\Threat;
 
 class LeaveController extends Controller
 {
@@ -698,12 +699,50 @@ class LeaveController extends Controller
             return response()->json(['Error!!!' => $e->getMessage()], 500);
         }
     }
+
+    public function listLeaves(){
+        try{
+            // return Threat::all();
+            if(User::getUser()->hasRole('admin')){    
+                return response()->json(Audit::adminList(), 200);
+            }
+
+            if(User::getUser()->hasRole('hrmd')){
+                
+                return response()->json(Audit::listHrmd(), 200);
+            }
+
+            if(User::getUser()->hasRole('ps')){ 
+                return response()->json(Audit::listPs(), 200);
+            }
+
+            if(User::getUser()->hasRole('hod')){
+                return response()->json(Audit::listHod(), 200);
+            }
+
+            if(User::getUser()->hasRole('employee')){
+                // return response()->json(User::getDepartment(), 200);
+                return response()->json(Audit::listEmployeeLeaves(), 200);
+            }
+            else{
+                Threat::create([
+                    'done_by'=> User::getUserId(),
+                    'threat'=>"Tried to access leave lists",
+                ]);
+            }
+            // return response()->json($all, 200);
+        }
+        catch(\Exception $e){
+            return response()->json(['Error!!!' => $e->getMessage()], 500);
+        }
+        
+    }
     
     //function to create hrmd profile
     public function createHrmdProfile(Request $request, $user_id, $leave_app_id){
         try{
             if(!(Audit::checkUser($user_id))){
-                return response()->json(['message' => 'action forbidden'], 403);
+                return response()->json(['message' => 'action forbidden'], 401);
             }
             
             $all = Leave_applications::where('id',$leave_app_id)->get();

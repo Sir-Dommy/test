@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\PostingDetails;
 use App\Http\Controllers\GettingDetails;
 use App\Http\Controllers\LeaveController;
@@ -27,6 +28,8 @@ Route::get('test', [ApiController::class, 'test']);
 Route::post('register', [ApiController::class, 'register']);
 Route::post('login', [ApiController::class, 'login']);
 
+
+// comment to disable jwt authentication
 Route::middleware('jwt.auth')->group(function(){
     Route::post('logout', [ApiController::class, 'logout']);
 
@@ -116,6 +119,7 @@ Route::middleware('jwt.auth')->group(function(){
     Route::get('/populateHrmdDetails/{user_id}/{leave_app_id}', [LeaveController::class, 'populateHrmdDetails']);
     Route::get('/getUserLeaves/{user_id}', [LeaveController::class, 'getUserLeaves']);
     Route::get('/checkAvailableDays/{user_id}/{leave_type}', [LeaveController::class, 'checkAvailableDays']);
+    Route::get('/listLeaves', [LeaveController::class, 'listLeaves']);
 
 
 
@@ -138,8 +142,13 @@ Route::middleware('jwt.auth')->group(function(){
         
     });
         
-
+// comment to disable jwt authentication
 });
+
+
+
+// File manipulation test routes
+Route::post('upload', [FileController::class, 'upload']);
 
 
 

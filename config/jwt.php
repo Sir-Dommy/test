@@ -89,7 +89,7 @@ return [
     |
     */
 
-    'ttl' => env('JWT_TTL', 60),
+    'ttl' => env('JWT_TTL', 1440),
 
     /*
     |--------------------------------------------------------------------------
@@ -134,6 +134,9 @@ return [
     | present in the payload.
     |
     */
+
+    // Added by sir-dommy on 14/5/2024 always remember to remove 'exp' in claims if you have set token
+    // expiry time to null like in cases of mobile apps
 
     'required_claims' => [
         'iss',

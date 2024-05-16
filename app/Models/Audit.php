@@ -264,7 +264,425 @@ class Audit extends Model
         
         return $end_date;
     }
+
+    public static function adminList(){
+        $leave_applications = Leave_applications::leftjoin('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('leave_applicants', 'leave_applications.external_id', '=', 'leave_applicants.external_id')
+            ->leftjoin('ps_profiles', 'leave_applications.id', '=', 'ps_profiles.external_id')
+            ->leftjoin('hrmd_profiles', 'leave_applications.id', '=', 'hrmd_profiles.external_id')
+            ->whereNull('hod_profiles.external_id')
+            ->whereNull('ps_profiles.external_id')
+            ->whereNull('hrmd_profiles.external_id')
+            ->select(
+                'leave_applications.id  AS id',
+                'leave_applicants.name AS applicant_name',
+                'leave_applicants.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date as applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                DB::raw('NULL as hod_name'),
+                DB::raw('NULL as hod_signed_on'),
+                DB::raw('NULL as ps_name'),
+                DB::raw('NULL as ps_signed_on'),
+                DB::raw('NULL as hrmd_name'),
+                DB::raw('NULL as hrmd_signed_on'),
+                DB::raw('NULL as leave_begins_on'),
+                DB::raw('NULL as days_given'),
+                DB::raw('NULL as return_date'),
+            )
+            ->limit(250);
+            // ->get();
+                
+
+        $hod_profiles = Hod_profiles::query()
+            ->join('leave_applications', 'hod_profiles.external_id', '=', 'leave_applications.id')
+            ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->leftjoin('ps_profiles', 'leave_applications.id', '=', 'ps_profiles.external_id')
+            ->leftjoin('hrmd_profiles', 'leave_applications.id', '=', 'hrmd_profiles.external_id')
+            ->whereNull('ps_profiles.external_id')
+            ->whereNull('hrmd_profiles.external_id')
+            ->select(
+                'leave_applications.id AS id',
+                'applicant.name AS applicant_name',
+                'applicant.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date AS applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                'hod.name AS hod_name',
+                'hod_profiles.date AS hod_signed_on',
+                DB::raw('NULL as ps_name'),
+                DB::raw('NULL as ps_signed_on'),
+                DB::raw('NULL as hrmd_name'),
+                DB::raw('NULL as hrmd_signed_on'),
+                DB::raw('NULL as leave_begins_on'),
+                DB::raw('NULL as days_given'),
+                DB::raw('NULL as return_date'),
+                )
+            ->limit(250);
+            // ->get();
+        
+        $ps_profiles = Ps_profiles::query()
+            ->join('leave_applications', 'ps_profiles.external_id', '=', 'leave_applications.id')
+            ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
+            ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->leftjoin('hrmd_profiles', 'leave_applications.id', '=', 'hrmd_profiles.external_id')
+            ->whereNull('hrmd_profiles.external_id')
+            ->select(
+                'leave_applications.id AS id',
+                'applicant.name AS applicant_name',
+                'applicant.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date as applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                'hod.name AS hod_name',
+                'hod_profiles.date AS hod_signed_on',
+                'ps.name AS ps_name',
+                'ps_profiles.date AS ps_signed_on',
+                DB::raw('NULL as hrmd_name'),
+                DB::raw('NULL AS hrmd_signed_on'),
+                DB::raw('NULL AS leave_begins_on'),
+                DB::raw('NULL AS days_given'),
+                DB::raw('NULL AS return_date'),
+                )
+            ->limit(250);
+            // ->get();
+
+
+        $hrmd_profiles = Hrmd_profiles::query()
+            ->join('leave_applications', 'hrmd_profiles.external_id', '=', 'leave_applications.id')
+            ->join('leave_applicants as applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
+            ->join('ps_profiles', 'leave_applications.id', '=', 'ps_profiles.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->join('leave_applicants AS hrmd', 'hrmd_profiles.approved_by', '=', 'hrmd.external_id')
+            ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
+            
+            
+            ->select(
+                'leave_applications.id AS id',
+                'applicant.name AS applicant_name',
+                'applicant.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date as applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                'hod.name AS hod_name',
+                'hod_profiles.date AS hod_signed_on',
+                'ps.name as ps_name',
+                'ps_profiles.date as ps_signed_on',
+                'hrmd.name as hrmd_name',
+                'hrmd_profiles.date as hrmd_signed_on',
+                'hrmd_profiles.leave_start_date AS leave_start_date',
+                'hrmd_profiles.num_of_days AS days_given',
+                'hrmd_profiles.to_resume_on AS return_date',
+                )
+            
+            ->limit(250);
+            // ->get();
+
+        return $leave_applications->union($hod_profiles)->union($ps_profiles)->union($hrmd_profiles)->get();
+
+    }
+
+    public static function listHrmd(){
+        $approved = Hrmd_profiles::query()
+            ->join('leave_applications', 'hrmd_profiles.external_id', '=', 'leave_applications.id')
+            ->join('leave_applicants as applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
+            ->join('ps_profiles', 'leave_applications.id', '=', 'ps_profiles.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->join('leave_applicants AS hrmd', 'hrmd_profiles.approved_by', '=', 'hrmd.external_id')
+            // ->join('leave_applicants AS hrmd_rejected', 'hrmd_profiles.rejected_by', '=', 'hrmd_rejected.external_id')
+            ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
+            ->whereNull('ps_profiles.rejected_by')
+            
+            
+            ->select(
+                'leave_applications.id AS id',
+                'applicant.name AS applicant_name',
+                'applicant.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date as applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                'hod.name AS hod_name',
+                'hod_profiles.date AS hod_signed_on',
+                'ps.name as ps_name',
+                'ps_profiles.date as ps_signed_on',
+                'hrmd.name as hrmd_name',
+                'hrmd_profiles.date as hrmd_approved_on',
+                DB::raw('NULL as hrmd_rejected_on'),
+                'hrmd_profiles.leave_start_date AS leave_start_date',
+                'hrmd_profiles.num_of_days AS days_given',
+                'hrmd_profiles.to_resume_on AS return_date',
+                )
+                
+            ->limit(250);
+            // ->get();
+        
+        $rejected = Hrmd_profiles::query()
+            ->join('leave_applications', 'hrmd_profiles.external_id', '=', 'leave_applications.id')
+            ->join('leave_applicants as applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
+            ->join('ps_profiles', 'leave_applications.id', '=', 'ps_profiles.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->join('leave_applicants AS hrmd', 'hrmd_profiles.rejected_by', '=', 'hrmd.external_id')
+            ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
+            ->whereNull('ps_profiles.rejected_by')
+            
+            
+            ->select(
+                'leave_applications.id AS id',
+                'applicant.name AS applicant_name',
+                'applicant.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date as applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                'hod.name AS hod_name',
+                'hod_profiles.date AS hod_signed_on',
+                'ps.name as ps_name',
+                'ps_profiles.date as ps_signed_on',
+                'hrmd.name as hrmd_name',
+                DB::raw('NULL as hrmd_approved_on'),
+                'hrmd_profiles.date as hrmd_rejected_on',
+                'hrmd_profiles.leave_start_date AS leave_start_date',
+                'hrmd_profiles.num_of_days AS days_given',
+                'hrmd_profiles.to_resume_on AS return_date',
+                )
+            ->limit(250);
+            // ->get();
+
+        $ps_profiles = Ps_profiles::query()
+            ->join('leave_applications', 'ps_profiles.external_id', '=', 'leave_applications.id')
+            ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
+            ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->leftjoin('hrmd_profiles', 'leave_applications.id', '=', 'hrmd_profiles.external_id')
+            ->whereNull('ps_profiles.rejected_by')
+            ->whereNull('hod_profiles.rejected_by')
+            ->whereNull('hrmd_profiles.external_id')
+            ->select(
+                'leave_applications.id AS id',
+                'applicant.name AS applicant_name',
+                'applicant.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date as applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                'hod.name AS hod_name',
+                'hod_profiles.date AS hod_signed_on',
+                'ps.name AS ps_name',
+                'ps_profiles.date AS ps_signed_on',
+                DB::raw('NULL as hrmd_name'),
+                DB::raw('NULL as hrmd_approved_on'),
+                DB::raw('NULL as hrmd_rejected_on'),
+                DB::raw('NULL AS leave_start_date'),
+                DB::raw('NULL AS days_given'),
+                DB::raw('NULL AS return_date'),
+                )
+            ->limit(250);
+        
+        return  $approved->union($rejected)->union($ps_profiles)->get();
+
+    }
     
+
+    public static function listPs(){
+        $ps_approved = Ps_profiles::query()
+            ->join('leave_applications', 'ps_profiles.external_id', '=', 'leave_applications.id')
+            ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
+            ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->whereNull('ps_profiles.rejected_by')
+            ->select(
+                'leave_applications.id AS id',
+                'applicant.name AS applicant_name',
+                'applicant.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date as applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                'hod.name AS hod_name',
+                'hod_profiles.date AS hod_signed_on',
+                'ps.name AS ps_name',
+                'ps_profiles.date AS ps_approved_on',
+                DB::raw('NULL AS ps_rejected_on'),
+                )
+            ->limit(250);
+            // ->get();
+
+        $ps_rejected = Ps_profiles::query()
+            ->join('leave_applications', 'ps_profiles.external_id', '=', 'leave_applications.id')
+            ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
+            ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->whereNotNull('ps_profiles.rejected_by')
+            ->select(
+                'leave_applications.id AS id',
+                'applicant.name AS applicant_name',
+                'applicant.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date as applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                'hod.name AS hod_name',
+                'hod_profiles.date AS hod_signed_on',
+                'ps.name AS ps_name',
+                DB::raw('NULL AS ps_approved_on'),
+                'ps_profiles.date AS ps_rejected_on',
+                )
+            ->limit(250);
+
+        
+        $hod_profiles = Hod_profiles::query()
+            ->join('leave_applications', 'hod_profiles.external_id', '=', 'leave_applications.id')
+            ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->leftjoin('ps_profiles', 'leave_applications.id', '=', 'ps_profiles.external_id')
+            ->whereNull('ps_profiles.external_id')
+            ->whereNull('hod_profiles.rejected_by')
+ 
+            ->select(
+                'leave_applications.id AS id',
+                'applicant.name AS applicant_name',
+                'applicant.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date AS applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                'hod.name AS hod_name',
+                'hod_profiles.date AS hod_signed_on',
+                DB::raw('NULL as ps_name'),
+                DB::raw('NULL as ps_approved_on'),
+                DB::raw('NULL as ps_rejected_on'),
+
+                )
+            ->limit(250);
+            // ->get();
+        
+        return $ps_approved->union($ps_rejected)->union($hod_profiles)->get();
+    }
+
+    public static function listHod(){
+        $hod_approved = Hod_profiles::query()
+            ->join('leave_applications', 'hod_profiles.external_id', '=', 'leave_applications.id')
+            ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->whereNull('hod_profiles.rejected_by')
+            ->where('hod.department', User::getDepartment())
+            ->select(
+                'leave_applications.id AS id',
+                'applicant.name AS applicant_name',
+                'applicant.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date AS applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                'hod.name AS hod_name',
+                'hod_profiles.date AS hod_approved_on',
+                DB::raw('NULL as hod_rejected_on'),
+                )
+            ->limit(250);
+            // ->get();
+        
+        $hod_rejected = Hod_profiles::query()
+            ->join('leave_applications', 'hod_profiles.external_id', '=', 'leave_applications.id')
+            ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->whereNotNull('hod_profiles.rejected_by')
+            ->where('hod.department', User::getDepartment())
+            ->select(
+                'leave_applications.id AS id',
+                'applicant.name AS applicant_name',
+                'applicant.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date AS applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                'hod.name AS hod_name',
+                DB::raw('NULL as hod_approved_on'),
+                'hod_profiles.date AS hod_rejected_on',
+                )
+            ->limit(250);
+            // ->get();
+        
+        $leave_applications = Leave_applications::leftjoin('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
+            ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('leave_applicants', 'leave_applications.external_id', '=', 'leave_applicants.external_id')
+            ->whereNull('hod_profiles.external_id')
+            ->where('leave_applicants.department', User::getDepartment())
+            ->select(
+                'leave_applications.id  AS id',
+                'leave_applicants.name AS applicant_name',
+                'leave_applicants.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date as applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+                DB::raw('NULL as hod_name'),
+                DB::raw('NULL as hod_approved_on'),
+                DB::raw('NULL as hod_rejected_on'),
+            )
+            ->limit(250);
+            // ->get();
+        
+        return $hod_approved->union($hod_rejected)->union($leave_applications)->get();
+    }
+
+    public static function listEmployeeLeaves(){
+        $leave_applications = Leave_applications::join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('leave_applicants', 'leave_applications.external_id', '=', 'leave_applicants.external_id')
+            ->where('leave_applications.external_id', User::getUserId())
+            ->select(
+                'leave_applications.id  AS id',
+                'leave_applicants.name AS applicant_name',
+                'leave_applicants.department',
+                'leave_types.name AS leave_type', 
+                'leave_applications.num_of_days', 
+                'leave_applications.date as applied_on', 
+                'leave_applications.status', 
+                'leave_applications.stage',
+            )
+            ->limit(250);
+            // ->get();
+        return $leave_applications->get();       
+        
+    }
     
 
 }

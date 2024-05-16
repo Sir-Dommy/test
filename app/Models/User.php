@@ -69,7 +69,18 @@ class User extends Authenticatable implements JWTSubject
     // function to get user_id from jwttoken
     public static function getUserId(){
         $token = JWTAuth::parseToken()->getPayload()->toArray();
+        return $token['sub'];
+    }
+    public static function getDepartment(){
+        $token = JWTAuth::parseToken()->getPayload()->toArray();//$token['sub']
+        $department = Leave_applicants::where('external_id',110)
+        ->get('department');
+        return $department[0]->department;
+    }
+    public static function getUser(){
+        $token = JWTAuth::parseToken()->getPayload()->toArray();
         $user_id = $token['sub'];
         return User::find($user_id);
     }
+
 }
