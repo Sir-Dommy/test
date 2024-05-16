@@ -702,10 +702,10 @@ class LeaveController extends Controller
 
     public function listLeaves(){
         try{
-            // uncomment to check admin leaves  for admin or suoeradmin 
-            // if(User::getUser()->hasRole('admin')){    
-            //     return response()->json(Audit::adminList(), 200);
-            // }
+            //  check admin leaves  for admin or suoeradmin 
+            if(User::getUser()->hasRole('admin')){    
+                return response()->json(Audit::adminList(), 200);
+            }
 
             if(User::getUser()->hasRole('hrmd')){
                 
