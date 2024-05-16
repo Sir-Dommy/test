@@ -19,7 +19,7 @@ class CheckAdminMiddleware
      */
     public function handle($request, Closure $next)
     {
-        $user = User::getUserId();
+        $user = User::getUser();
 
         if($user->hasRole('admin')){
             if(collect(explode(',' ,Config::get('app.superadmins')))->contains($user->email)){

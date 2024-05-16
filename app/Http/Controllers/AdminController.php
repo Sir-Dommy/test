@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Spatie\Permission\Models\Permission;
@@ -11,7 +12,7 @@ use Spatie\Permission\Models\Role;
 class AdminController extends Controller
 {
     public function testAdmin(){
-        $user = User::getUserId();
+        $user = User::getUser();
         
         // return explode(',' ,Config::get('app.superadmins'));
         if(collect(explode(',' ,Config::get('app.superadmins')))->contains($user->email)){
@@ -21,19 +22,31 @@ class AdminController extends Controller
         
     }
     //assign roles
-    public function assignRoles(Request $request, $user_id){
+    public function assignRole(Request $request){
         try{
+            $request->validate([
+                'user_id' => 'required|string|max:255|exists:users,id',
+                'role' => 'required|string|max:255|exists:roles,name',
+            ]);
+
+
             $user = User::find($request->user_id);
             $role = Role::findByName($request->role);
             $permission = Permission::findByName($request->permission);
             // var_dump($user);
             $user->assignRole($role);
             $user->givePermissionTo($permission);
+            return $user->getRoleNames();
             return $user->can('edit_post');
             return $user->hasRole('admin');
         }
+        // catch (ValidationException $e) {
+        //     if ($e->errors()['role'][0] === 'The selected role is invalid.') {
+        //         // Handle the error here
+        //     }
+        // }
         catch(\Exception $e){
-            return $e->getMessage();
+            return response()->json(['failed'=>$e->getMessage()], 500);
         }
         
     }
