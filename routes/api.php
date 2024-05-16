@@ -98,7 +98,7 @@ Route::middleware('jwt.auth')->group(function(){
     Route::get('/getLeaveApplications/{user_id}', [LeaveController::class, 'getLeaveApplications']);
     Route::get('/getMyLeaves/{user_id}', [LeaveController::class, 'getMyLeaves']);
     Route::get('/getLeaveReport/{user_id}/{leave_app_id}', [LeaveController::class, 'getLeaveReport']);
-    Route::post('/submitDetails/{user_id}', [LeaveController::class, 'submitDetails']);
+    Route::post('/submitDetails', [LeaveController::class, 'submitDetails']);
     Route::post('/createLeaveType/{user_id}', [LeaveController::class, 'createLeaveType']);
     Route::put('/updateLeaveType/{user_id}/{leave_id}', [LeaveController::class, 'updateLeaveType']);
     Route::put('/deactivateLeaveType/{user_id}/{leave_id}', [LeaveController::class, 'deactivateLeaveType']);
