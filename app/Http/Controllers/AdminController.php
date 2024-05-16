@@ -21,7 +21,7 @@ class AdminController extends Controller
         
     }
     //assign roles
-    public function assignRoles(Request $request){
+    public function assignRoles(Request $request, $user_id){
         try{
             $user = User::find($request->user_id);
             $role = Role::findByName($request->role);

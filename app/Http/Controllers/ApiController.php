@@ -23,31 +23,39 @@ class ApiController extends Controller
     }
     public function register(Request $request){
         try {
+            
             $request->validate([
                 'job_id' => 'required|string|max:255|unique:users',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:3',
             ]);
 
+            DB::beginTransaction();
             $user=User::create([
             'email'=> $request->email,
             'job_id'=> $request->job_id,
             'password'=>bcrypt($request->password),
             ]);
 
+            $user->assignRole('employee');
             $token = Auth::login($user);
+            $roles = $user->getRoleNames()[0];
+            DB::commit();
             Audit::auditLog($request->job_id, "POST", "Registering");
             return response()->json([
-                'user_id'=>$user->id,'authorzation'=> [
+                'user_id'=>$user->id,
+                'roles'=>$roles,
+                'authorzation'=> [
                     'token' => $token,
                     'type' =>'bearer',
                 ],
                 'message'=>'Registered Successfuly'], 200);
 
+
         } 
         catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['failed'=>$e->getMessage()], 500);
-            return $e->getMessage();
         }
             
     }
@@ -62,9 +70,13 @@ class ApiController extends Controller
                 return response()->json(['message'=>'Unauthorized'],403);
             }
             $user = Auth::user();
+            $all = User::find($user->id);
+            $roles = $all->getRoleNames()[0];
             Audit::auditLog($request->job_id, "POST", "Logged in");
             return response()->json([
-                'user_id'=>$user->id,'authorzation'=> [
+                'user_id'=>$user->id,
+                'roles'=>$roles,
+                'authorzation'=> [
                     'token' => $token,
                     'type' =>'bearer',
                 ],
