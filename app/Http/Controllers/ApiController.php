@@ -11,12 +11,13 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class ApiController extends Controller
 {
     //
     public function test(){
+        return Auth::payload();
         $details = Personal_detail::all();
         return response()->json($details, 200);
         return response()->json(['token' => $details], 200);
@@ -61,15 +62,18 @@ class ApiController extends Controller
     }
     public function login(Request $request){
         try{
+            
             $credentials= request(['job_id','password']);
-            // if(!Auth::attempt($credentials)){
-            //     return response()->json(['message'=>'Unauthorized'],403);
-            // }
+            // return $this->test();
+            
+
             $token = Auth::attempt($credentials);
             if(!$token){
                 return response()->json(['message'=>'Unauthorized'],403);
             }
+            
             $user = Auth::user();
+
             $all = User::find($user->id);
             $roles = $all->getRoleNames()[0];
             Audit::auditLog($request->job_id, "POST", "Logged in");

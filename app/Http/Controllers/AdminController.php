@@ -5,15 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class AdminController extends Controller
 {
     public function testAdmin(){
-        $user = User::getUser();
-        
+        $user = User::getUser(); 
+        $token = Auth::payload();
+        // $token->invalidate(true);
+        return $token;
         // return explode(',' ,Config::get('app.superadmins'));
         if(collect(explode(',' ,Config::get('app.superadmins')))->contains($user->email)){
             return $user->email;

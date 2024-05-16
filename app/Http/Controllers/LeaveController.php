@@ -67,30 +67,55 @@ class LeaveController extends Controller
     }
     
     //submit personal details
-    public function submitDetails(Request $request, $user_id){
+    public function submitDetails(Request $request){
         try{
-            if(!(Audit::checkUser($user_id))){
+            if(!(Audit::checkUser($request->user_id))){
                 return response()->json(['message' => 'action forbidden'], 403);
             }
             
             DB::beginTransaction();
             // Leave_applicants::where
-            Leave_applicants::create([
-                'external_id'=> $user_id,
-                'name'=> $request->name,
-                'department'=> $request->department,
-                'postal_address'=> $request->postal_address,
-                'mobile_no'=> $request->mobile_no,
-                'sign'=> $request->sign,
-                ]);
+            $applicant = Leave_applicants::where('external_id', $request->user_id)->get();
+            if(count($applicant)<1){
+                Leave_applicants::create([
+                    'external_id'=> $request->user_id,
+                    'name'=> $request->name,
+                    'department'=> $request->department,
+                    'postal_address'=> $request->postal_address,
+                    'mobile_no'=> $request->mobile_no,
+                    'sign'=> $request->sign,
+                    ]);
+            }
+            
+
+            Leave_applications::create([
+                'external_id'=>$request->user_id,
+                'designation'=>$request->designation,
+                'leave_type'=>$request->leave_type,
+                'num_of_days'=>$request->num_of_days,
+                'leave_begins_on'=>$request->leave_begins_on,
+                'leave_address'=>$request->leave_address,
+                'salary_paid_to'=>$request->salary_paid_to,
+                'account_no'=>$request->account_no,
+                'date'=>$request->date,
+                'signed'=>$request->signed,
+                // 'stage'=>$request->stage,
+                // 'status'=>$request->status,
+                ]); 
                 
             // Commit the transaction if all operations are successful
             DB::commit();
-            Audit::auditLog($user_id, "POST", "Created Leave Application Profile");
-            return response()->json(['user_id' => $user_id, 'message'=>'success'], 200);
+            Audit::auditLog($request->user_id, "POST", "Created Leave Application Profile and application");
+            return response()->json([
+                'user_id' => $request->user_id,
+                'leave_type' => $request->leave_type, 
+                'number_of_days' => $request->num_of_days, 
+                'message'=>'success'], 
+                200);
         }
         
         catch (\Exception $e){
+            DB::rollBack();
             return response()->json(['Error!!!' => $e->getMessage()], 500);
         }
     }
