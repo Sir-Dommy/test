@@ -74,7 +74,9 @@ class LeaveController extends Controller
                 "p_no" => $p_no,
                 "name" => $name,
                 "gender" => $gender,
+                "department" => null,
                 "postal_address" => $postal_address,
+                "mobile_no" => null,
                 "leave_types" => $details,
             ], 200);
 
