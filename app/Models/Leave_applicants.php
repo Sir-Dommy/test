@@ -12,6 +12,7 @@ class Leave_applicants extends Model
     protected $fillable = [
         'external_id',
         'name',
+        'gender',
         'department',
         'postal_address',
         'mobile_no',

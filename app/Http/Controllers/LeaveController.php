@@ -24,24 +24,48 @@ class LeaveController extends Controller
         return count($id);
     }
     //apply for a leave
-    public function applyLeave(Request $request, $user_id){
+    public function applyLeave(Request $request){
         try{
+            $user_id = User::getUserId();
+            $user = User::getUser();
             if(!(Audit::checkUser($user_id))){
                 return response()->json(['message' => 'action forbidden'], 403);
             }
-            $all = Leave_applicants::where('external_id', $user_id)
-                ->select('id', 'external_id', 'name', 'department', 'postal_address', 'mobile_no')
-                ->get();
-            if(count($all) > 0){
-                return response()->json($all, 200);
-            }
+            // $all = Leave_applicants::where('external_id', $user_id)
+            //     ->select('id', 'external_id', 'name', 'department', 'postal_address', 'mobile_no')
+            //     ->get();
+            // if(count($all) > 0){
+            //     return response()->json($all, 200);
+            // }
             $all = Personal_detail::join('users', 'personal_details.external_id', '=', 'users.id')
-                ->select('personal_details.name','personal_details.postal_address', 'personal_details.postal_town', 'personal_details.postal_code', 'users.job_id AS p_no')
-                ->where('personal_details.external_id', $user_id)
+                ->select('personal_details.name','personal_details.postal_address', 'personal_details.postal_town', 'personal_details.postal_code', 'personal_details.gender', 'users.job_id AS p_no')
+                ->where('personal_details.external_id', $user_id)//$user_id
                 ->get();
-            // $all = Personal_detail::where('external_id','!=', $request->user_id)
-            // ->select('name')
-            // ->get();
+
+            $leave_types = Leave_types::all();
+            $details = [];
+
+            foreach($leave_types as $leave_type){
+                $details[] = [
+                    'id'=>$leave_type->id,
+                    'leave_type'=>$leave_type->name,
+                    'leave_type_days'=>$leave_type->num_of_days,
+                ];
+            }
+            // return $all;
+            $p_no = $user->job_id;
+            $name = count($all) ? $all[0]->name : null;
+            $gender = count($all) ? $all[0]->gender : null;
+            $postal_address = count($all)  ? $all[0]->name ." ".$all[0]->postal_town." ".$all[0]->postal_code : null;
+
+            return response()->json([
+                "p_no" => $p_no,
+                "name" => $name,
+                "gender" => $gender,
+                "postal_address" => $postal_address,
+                "leave_types" => $details,
+            ], 200);
+
             if(count($all)>0){
                 return response()->json($all, 200);
             }
