@@ -26,22 +26,11 @@ class LeaveController extends Controller
     //apply for a leave
     public function applyLeave(Request $request){
         try{
-            $user_id = User::getUserId();
+            // $user_id = User::getUserId();
             $user = User::getUser();
-            if(!(Audit::checkUser($user_id))){
+            if(!(Audit::checkUser($user->id))){
                 return response()->json(['message' => 'action forbidden'], 403);
             }
-            // $all = Leave_applicants::where('external_id', $user_id)
-            //     ->select('id', 'external_id', 'name', 'department', 'postal_address', 'mobile_no')
-            //     ->get();
-            // if(count($all) > 0){
-            //     return response()->json($all, 200);
-            // }
-            $all = Personal_detail::join('users', 'personal_details.external_id', '=', 'users.id')
-                ->select('personal_details.name','personal_details.postal_address', 'personal_details.postal_town', 'personal_details.postal_code', 'personal_details.gender', 'users.job_id AS p_no')
-                ->where('personal_details.external_id', $user_id)//$user_id
-                ->get();
-
             $leave_types = Leave_types::all();
             $details = [];
 
@@ -52,6 +41,29 @@ class LeaveController extends Controller
                     'leave_type_days'=>$leave_type->num_of_days,
                 ];
             }
+
+            $applicant = Leave_applicants::join('users', 'leave_applicants.external_id', '=', 'users.id')
+                ->where('leave_applicants.external_id', $user->id)//$user_id
+                ->select('leave_applicants.external_id', 'leave_applicants.name', 'leave_applicants.gender', 'leave_applicants.department', 'leave_applicants.postal_address', 'leave_applicants.mobile_no', 'users.job_id as p_no')
+                ->get();
+            if(count($applicant) > 0){
+                return response()->json([
+                    "job_id" => $applicant[0]->p_no,
+                    "name" => $applicant[0]->name,
+                    "gender" => $applicant[0]->gender,
+                    "department" => $applicant[0]->department,
+                    "postal_address" => $applicant[0]->postal_address,
+                    "mobile_no" => $applicant[0]->mobile_no,
+                    "leave_types" => $details,
+                ], 200);
+            }
+
+            $all = Personal_detail::join('users', 'personal_details.external_id', '=', 'users.id')
+                ->select('personal_details.name','personal_details.postal_address', 'personal_details.postal_town', 'personal_details.postal_code', 'personal_details.gender', 'users.job_id AS p_no')
+                ->where('personal_details.external_id', $user->id)//$user_id
+                ->get();
+
+            
             // return $all;
             $p_no = $user->job_id;
             $name = count($all) ? $all[0]->name : null;
@@ -70,7 +82,7 @@ class LeaveController extends Controller
                 return response()->json($all, 200);
             }
             
-            $all = User::where('id',$user_id)
+            $all = User::where('id',$user->id)
                 ->select('job_id AS p_no')
                 ->get();
                 
@@ -79,7 +91,7 @@ class LeaveController extends Controller
             }
             
             else{
-                return response()->json(["message" => 'user_id '.$user_id.' not found'], 404);
+                return response()->json(["message" => 'user_id '.$user->id.' not found'], 404);
             }
                 
             // Audit::auditLog($user_id, "GET", "Viewing All Jobs");   
