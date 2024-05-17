@@ -118,6 +118,7 @@ class LeaveController extends Controller
                 Leave_applicants::create([
                     'external_id'=> $request->user_id,
                     'name'=> $request->name,
+                    'gender'=>$request->gender,
                     'department'=> $request->department,
                     'postal_address'=> $request->postal_address,
                     'mobile_no'=> $request->mobile_no,
