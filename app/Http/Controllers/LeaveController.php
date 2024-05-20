@@ -24,6 +24,10 @@ class LeaveController extends Controller
         return count($id);
     }
 
+    public function test(){
+        return Audit::getUserLeaves(110);
+    }
+
     //apply for a leave
     public function applyLeave(Request $request){
         try{

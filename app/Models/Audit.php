@@ -75,7 +75,9 @@ class Audit extends Model
 
         return $endDate->toDateString();
     }
-    
+    public static function checkGender($user_id){
+        return Leave_applicants::where('external_id', $user_id)->get('gender')[0]->gender;
+    }
     public static function checkPastLeave($user_id, $leave_type){
         
         $currentYear = Carbon::now()->year;
@@ -164,7 +166,9 @@ class Audit extends Model
     
     public static function getUserLeaves($user_id){
         
-        $leave_types = Leave_types::all();
+        $leave_types = Leave_types::where('gender_allowed', Audit::checkGender($user_id))
+            ->orWhere('gender_allowed', 'all')
+            ->get();
         $details = [];
         foreach($leave_types as $leave_type){
             $currentYear = Carbon::now()->year;
