@@ -25,6 +25,7 @@ class LeaveController extends Controller
     }
 
     public function test(){
+        return Audit::listEmployeeLeaves();
         return Audit::getUserLeaves(110);
     }
 

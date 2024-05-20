@@ -298,6 +298,7 @@ class Audit extends Model
         $leave_applications = Leave_applications::leftjoin('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
             ->join('leave_applicants', 'leave_applications.external_id', '=', 'leave_applicants.external_id')
+            ->join('users', 'leave_applicants.external_id', '=', 'users.id')
             ->leftjoin('ps_profiles', 'leave_applications.id', '=', 'ps_profiles.external_id')
             ->leftjoin('hrmd_profiles', 'leave_applications.id', '=', 'hrmd_profiles.external_id')
             ->whereNull('hod_profiles.external_id')
@@ -305,6 +306,7 @@ class Audit extends Model
             ->whereNull('hrmd_profiles.external_id')
             ->select(
                 'leave_applications.id  AS id',
+                'users.job_id',
                 'leave_applicants.name AS applicant_name',
                 'leave_applicants.department',
                 'leave_types.name AS leave_type', 
@@ -331,12 +333,14 @@ class Audit extends Model
             ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('users', 'applicant.external_id', '=', 'users.id')
             ->leftjoin('ps_profiles', 'leave_applications.id', '=', 'ps_profiles.external_id')
             ->leftjoin('hrmd_profiles', 'leave_applications.id', '=', 'hrmd_profiles.external_id')
             ->whereNull('ps_profiles.external_id')
             ->whereNull('hrmd_profiles.external_id')
             ->select(
                 'leave_applications.id AS id',
+                'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
                 'leave_types.name AS leave_type', 
@@ -363,11 +367,13 @@ class Audit extends Model
             ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
             ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
+            ->join('users', 'applicant.external_id', '=', 'users.id')
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
             ->leftjoin('hrmd_profiles', 'leave_applications.id', '=', 'hrmd_profiles.external_id')
             ->whereNull('hrmd_profiles.external_id')
             ->select(
                 'leave_applications.id AS id',
+                'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
                 'leave_types.name AS leave_type', 
@@ -398,10 +404,12 @@ class Audit extends Model
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
             ->join('leave_applicants AS hrmd', 'hrmd_profiles.approved_by', '=', 'hrmd.external_id')
             ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
+            ->join('users', 'applicant.external_id', '=', 'users.id')
             
             
             ->select(
                 'leave_applications.id AS id',
+                'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
                 'leave_types.name AS leave_type', 
@@ -436,6 +444,8 @@ class Audit extends Model
             ->join('ps_profiles', 'leave_applications.id', '=', 'ps_profiles.external_id')
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
             ->join('leave_applicants AS hrmd', 'hrmd_profiles.approved_by', '=', 'hrmd.external_id')
+            ->join('users', 'applicant.external_id', '=', 'users.id')
+          
             // ->join('leave_applicants AS hrmd_rejected', 'hrmd_profiles.rejected_by', '=', 'hrmd_rejected.external_id')
             ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
             ->whereNull('ps_profiles.rejected_by')
@@ -443,6 +453,7 @@ class Audit extends Model
             
             ->select(
                 'leave_applications.id AS id',
+                'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
                 'leave_types.name AS leave_type', 
@@ -474,11 +485,13 @@ class Audit extends Model
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
             ->join('leave_applicants AS hrmd', 'hrmd_profiles.rejected_by', '=', 'hrmd.external_id')
             ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
+            ->join('users', 'applicant.external_id', '=', 'users.id')
             ->whereNull('ps_profiles.rejected_by')
             
             
             ->select(
                 'leave_applications.id AS id',
+                'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
                 'leave_types.name AS leave_type', 
@@ -507,12 +520,14 @@ class Audit extends Model
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
             ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->join('users', 'applicant.external_id', '=', 'users.id')
             ->leftjoin('hrmd_profiles', 'leave_applications.id', '=', 'hrmd_profiles.external_id')
             ->whereNull('ps_profiles.rejected_by')
             ->whereNull('hod_profiles.rejected_by')
             ->whereNull('hrmd_profiles.external_id')
             ->select(
                 'leave_applications.id AS id',
+                'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
                 'leave_types.name AS leave_type', 
@@ -546,9 +561,11 @@ class Audit extends Model
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
             ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->join('users', 'applicant.external_id', '=', 'users.id')
             ->whereNull('ps_profiles.rejected_by')
             ->select(
                 'leave_applications.id AS id',
+                'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
                 'leave_types.name AS leave_type', 
@@ -572,9 +589,11 @@ class Audit extends Model
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
             ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->join('users', 'applicant.external_id', '=', 'users.id')
             ->whereNotNull('ps_profiles.rejected_by')
             ->select(
                 'leave_applications.id AS id',
+                'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
                 'leave_types.name AS leave_type', 
@@ -596,12 +615,14 @@ class Audit extends Model
             ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('users', 'applicant.external_id', '=', 'users.id')
             ->leftjoin('ps_profiles', 'leave_applications.id', '=', 'ps_profiles.external_id')
             ->whereNull('ps_profiles.external_id')
             ->whereNull('hod_profiles.rejected_by')
  
             ->select(
                 'leave_applications.id AS id',
+                'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
                 'leave_types.name AS leave_type', 
@@ -628,10 +649,12 @@ class Audit extends Model
             ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('users', 'applicant.external_id', '=', 'users.id')
             ->whereNull('hod_profiles.rejected_by')
             ->where('hod.department', User::getDepartment())
             ->select(
                 'leave_applications.id AS id',
+                'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
                 'leave_types.name AS leave_type', 
@@ -651,10 +674,12 @@ class Audit extends Model
             ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
+            ->join('users', 'applicant.external_id', '=', 'users.id')
             ->whereNotNull('hod_profiles.rejected_by')
             ->where('hod.department', User::getDepartment())
             ->select(
                 'leave_applications.id AS id',
+                'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
                 'leave_types.name AS leave_type', 
@@ -672,10 +697,12 @@ class Audit extends Model
         $leave_applications = Leave_applications::leftjoin('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
             ->join('leave_applicants', 'leave_applications.external_id', '=', 'leave_applicants.external_id')
+            ->join('users', 'leave_applicants.external_id', '=', 'users.id')
             ->whereNull('hod_profiles.external_id')
             ->where('leave_applicants.department', User::getDepartment())
             ->select(
                 'leave_applications.id  AS id',
+                'users.job_id',
                 'leave_applicants.name AS applicant_name',
                 'leave_applicants.department',
                 'leave_types.name AS leave_type', 
@@ -696,9 +723,11 @@ class Audit extends Model
     public static function listEmployeeLeaves(){
         $leave_applications = Leave_applications::join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
             ->join('leave_applicants', 'leave_applications.external_id', '=', 'leave_applicants.external_id')
+            ->join('users', 'leave_applicants.external_id', '=', 'users.id')
             ->where('leave_applications.external_id', User::getUserId())
             ->select(
                 'leave_applications.id  AS id',
+                'users.job_id',
                 'leave_applicants.name AS applicant_name',
                 'leave_applicants.department',
                 'leave_types.name AS leave_type', 

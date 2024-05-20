@@ -18,4 +18,6 @@ class Leave_applicants extends Model
         'mobile_no',
         'sign'
     ];
+
+
 }
