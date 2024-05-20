@@ -306,6 +306,7 @@ class Audit extends Model
             ->whereNull('hrmd_profiles.external_id')
             ->select(
                 'leave_applications.id  AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'leave_applicants.name AS applicant_name',
                 'leave_applicants.department',
@@ -340,6 +341,7 @@ class Audit extends Model
             ->whereNull('hrmd_profiles.external_id')
             ->select(
                 'leave_applications.id AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
@@ -373,6 +375,7 @@ class Audit extends Model
             ->whereNull('hrmd_profiles.external_id')
             ->select(
                 'leave_applications.id AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
@@ -409,6 +412,7 @@ class Audit extends Model
             
             ->select(
                 'leave_applications.id AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
@@ -453,6 +457,7 @@ class Audit extends Model
             
             ->select(
                 'leave_applications.id AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
@@ -491,6 +496,7 @@ class Audit extends Model
             
             ->select(
                 'leave_applications.id AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
@@ -527,6 +533,7 @@ class Audit extends Model
             ->whereNull('hrmd_profiles.external_id')
             ->select(
                 'leave_applications.id AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
@@ -565,6 +572,7 @@ class Audit extends Model
             ->whereNull('ps_profiles.rejected_by')
             ->select(
                 'leave_applications.id AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
@@ -593,6 +601,7 @@ class Audit extends Model
             ->whereNotNull('ps_profiles.rejected_by')
             ->select(
                 'leave_applications.id AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
@@ -622,6 +631,7 @@ class Audit extends Model
  
             ->select(
                 'leave_applications.id AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
@@ -654,6 +664,7 @@ class Audit extends Model
             ->where('hod.department', User::getDepartment())
             ->select(
                 'leave_applications.id AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
@@ -679,6 +690,7 @@ class Audit extends Model
             ->where('hod.department', User::getDepartment())
             ->select(
                 'leave_applications.id AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'applicant.name AS applicant_name',
                 'applicant.department',
@@ -702,6 +714,7 @@ class Audit extends Model
             ->where('leave_applicants.department', User::getDepartment())
             ->select(
                 'leave_applications.id  AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'leave_applicants.name AS applicant_name',
                 'leave_applicants.department',
@@ -727,6 +740,7 @@ class Audit extends Model
             ->where('leave_applications.external_id', User::getUserId())
             ->select(
                 'leave_applications.id  AS id',
+                'users.id as user_id',
                 'users.job_id',
                 'leave_applicants.name AS applicant_name',
                 'leave_applicants.department',
