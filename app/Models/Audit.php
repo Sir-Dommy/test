@@ -45,7 +45,6 @@ class Audit extends Model
         }
 
     }
-    
 
     public static function calculateEndDate($start_date, $leave_days)
     {
@@ -178,11 +177,19 @@ class Audit extends Model
             $days_carried_over = Audit::checkCarriedOverDays($user_id, $leave_type->id);
             
             $available_days = Audit::checkAvailableDays($user_id, $leave_type->id);
+
+            $days_you_can_apply_for = Audit::daysYouCanApplyFor($user_id, $leave_type->id);
             
-            $details [] = ["leave_type" => $leave_type->name, "leave_days_per_year" => $leave_type->num_of_days, "past_year_leaves"=>$past_year_leaves, "this_year_leaves"=>$this_year_leaves, "days_carried_over"=>$days_carried_over, "available_days"=>$available_days];
-            
-            
-            
+            $details [] = [
+                "leave_type_id" => $leave_type->id, 
+                "leave_type" => $leave_type->name, 
+                "leave_days_per_year" => $leave_type->num_of_days, 
+                "past_year_leaves"=>$past_year_leaves, 
+                "this_year_leaves"=>$this_year_leaves, 
+                "days_carried_over"=>$days_carried_over, 
+                "available_days"=>$available_days,
+                "days_you_can_apply_for"=>$days_you_can_apply_for,
+            ];           
             
         }
         
@@ -198,26 +205,25 @@ class Audit extends Model
             
         foreach($all as $data){
             if($data->can_carry_forward == 1){
-            $leaves_not_taken = $data->num_of_days - $past_year_leaves;
-            
-            //if leave days not taken is greater than or equal to max carry over days, return max carry over days from database
-            if($leaves_not_taken >= $data->max_carry_over_days){
-                return $data->max_carry_over_days;
-            }
-            
-            // if leave days not taken is greater than 0 but less than max carry over days return these days
-            elseif($leaves_not_taken > 0){
-                return $leaves_not_taken;
-            }
-            
-            // handle any other conditions including negative days not taken
-            else{
-                return 0;
+                $leaves_not_taken = $data->num_of_days - $past_year_leaves;
+                
+                //if leave days not taken is greater than or equal to max carry over days, return max carry over days from database
+                if($leaves_not_taken >= $data->max_carry_over_days){
+                    return $data->max_carry_over_days;
+                }
+                
+                // if leave days not taken is greater than 0 but less than max carry over days return these days
+                elseif($leaves_not_taken > 0){
+                    return $leaves_not_taken;
+                }
+                
+                // handle any other conditions including negative days not taken
+                else{
+                    return 0;
+                }
             }
         }
-        }
-        
-        
+
         return 0;
         
     }
@@ -236,6 +242,25 @@ class Audit extends Model
         }
         
         return  $available_days;
+    }
+
+    public static function daysYouCanApplyFor($user_id, $leave_type){
+        // return Audit::checkAvailableDays($user_id, $leave_type);
+        $all = Leave_types::where('id', $leave_type)->get();
+
+        if(count($all) > 0){
+            $available_days = Audit::checkAvailableDays($user_id, $leave_type);
+            
+            if($available_days >= $all[0]->max_days_per_application){
+                return $all[0]->max_days_per_application;
+            }
+
+            else{
+                return $available_days;
+            }
+        }
+
+        return 0;
     }
     
     public function startDate(){

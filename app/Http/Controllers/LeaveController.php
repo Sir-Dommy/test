@@ -23,6 +23,7 @@ class LeaveController extends Controller
                         ->get();
         return count($id);
     }
+
     //apply for a leave
     public function applyLeave(Request $request){
         try{
@@ -32,15 +33,7 @@ class LeaveController extends Controller
                 return response()->json(['message' => 'action forbidden'], 403);
             }
             $leave_types = Leave_types::all();
-            $details = [];
-
-            foreach($leave_types as $leave_type){
-                $details[] = [
-                    'id'=>$leave_type->id,
-                    'leave_type'=>$leave_type->name,
-                    'leave_type_days'=>$leave_type->num_of_days,
-                ];
-            }
+            $details = Audit::getUserLeaves($user->id);
 
             $applicant = Leave_applicants::join('users', 'leave_applicants.external_id', '=', 'users.id')
                 ->where('leave_applicants.external_id', $user->id)//$user_id
@@ -103,6 +96,10 @@ class LeaveController extends Controller
             return response()->json(['Error!!!' => $e->getMessage()], 500);
         }
     }
+
+    public function checkDaysYouCanApplyFor($user_id, $leave_type){
+        return Audit::daysYouCanApplyFor($user_id, $leave_type);
+    }
     
     //submit personal details
     public function submitDetails(Request $request){
@@ -111,10 +108,21 @@ class LeaveController extends Controller
                 return response()->json(['message' => 'action forbidden'], 403);
             }
             
+
             DB::beginTransaction();
             // Leave_applicants::where
             $applicant = Leave_applicants::where('external_id', $request->user_id)->get();
             if(count($applicant)<1){
+                $request->validate([
+                    'user_id' => 'required|integer|min:1',
+                    'name' => 'required|string|min:3|max:70',
+                    'gender' => 'required|string|min:3|max:10',
+                    'department' => 'required|string|min:3|max:100',
+                    'postal_address' => 'required|string|min:3|max:200',
+                    'mobile_no' => 'required|integer|min:10|max:14',
+                    'sign' => 'required|string',
+                ]);
+                
                 Leave_applicants::create([
                     'external_id'=> $request->user_id,
                     'name'=> $request->name,
@@ -126,6 +134,16 @@ class LeaveController extends Controller
                     ]);
             }
             
+            $request->validate([
+                'user_id' => 'required|integer|min:1',
+                'leave_type' => 'required|integer|min:1',
+                'num_of_days' => 'required|string|min:1|max:'.Audit::daysYouCanApplyFor($request->user_id, $request->leave_type),
+                'leave_begins_on' => 'required|date|after_or_equal:today',
+                'leave_address' => 'required|string|min:3|max:200',
+                'salary_paid_to' => 'required',
+                'account_no' => 'required',
+                'date' => 'required|date|after_or_equal:today',
+            ]);
 
             Leave_applications::create([
                 'external_id'=>$request->user_id,
