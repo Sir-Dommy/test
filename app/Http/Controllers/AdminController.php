@@ -191,32 +191,49 @@ class AdminController extends Controller
         try{
             $request->validate([
                 'department_id'=> 'required|integer|min:1|exists:departments,id',
-                'department_name'=> 'required|string|min:1|max:150|unique:departments,department_name',
                 'status'=> 'required|boolean',
+                'department_name'=> 'required|string|min:1|max:150|unique:departments,department_name',
             ]);
     
             DB::beginTransaction();
-            $department = Departments::where('id', $request->department_id)
-                ->create([
+            Departments::where('id', $request->department_id)
+                ->update([
                     'department_name' => $request->department_name,
-                    'department_status' => $request->department_status
+                    'status' => $request->status
                 ]);
 
             DB::commit();
 
             return response()->json([
-                "department_id" => $department->id,
-                "department_name" => $department->department_name,
-                "status" => $department->status,
+                "department_id" => $request->department_id,
+                "department_name" => $request->department_name,
+                "status" => $request->status,
                 "message" => "updated"
             ], 200);
         }
         catch(ValidationException $e){
-            // if
+            if($e->getMessage() == "The department name has already been taken."){
+                DB::beginTransaction();
+                Departments::where('id', $request->department_id)
+                    ->update([
+                        'department_name' => $request->department_name,
+                        'status' => $request->status
+                    ]);
+
+                DB::commit();
+
+                return response()->json([
+                    "department_id" => $request->department_id,
+                    "department_name" => $request->department_name,
+                    "status" => $request->status,
+                    "message" => "updated"
+                ], 200);
+            }
 
             return response()->json(['validation error'=>$e->getMessage()], 422);
         }
         catch(\Exception $e){
+            DB::rollBack();
             return response()->json(['error'=>$e->getMessage()], 500);
         }
     }
