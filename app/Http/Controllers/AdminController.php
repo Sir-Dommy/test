@@ -63,7 +63,7 @@ class AdminController extends Controller
     }
 
     public function getRoles(){
-        $roles = Role::select('id', 'name')->get();
+        $roles = Role::select('name')->get();
 
         return $roles;
     }
