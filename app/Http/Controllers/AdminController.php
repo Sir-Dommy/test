@@ -65,7 +65,13 @@ class AdminController extends Controller
     public function getRoles(){
         $roles = Role::select('name')->get();
 
-        return $roles;
+        $roles_array = [];
+
+        foreach($roles as $role){
+             $roles_array[] = $role;
+        }
+
+        return $roles_array;
     }
     //assign roles
     public function assignRole(Request $request){
