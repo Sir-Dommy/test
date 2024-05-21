@@ -62,6 +62,44 @@ class AdminController extends Controller
         ], 200);
     }
 
+    public function updateUsers(Request $request){
+        try{
+            $request->validate([
+                'user_id' => 'required|integer|min:1|exists:users,id',
+                'name' => 'required|string|min:1|max:70',
+                'department' => 'required|string|min:3|max:150',
+                'role' => 'required|string|min:1|max:20|exists:roles,name',
+            ]);
+
+            DB::beginTransaction();
+            
+            Leave_applicants::where('external_id', $request->user_id)
+                ->update([
+                    'name' => $request->name,
+                    'department' => $request->department,
+                ]);
+
+            $user = User::find($request->user_id);
+            $user->assignRole($request->role);
+
+            DB::commit();
+
+            return response()->json([
+                'user_id' => $request->user_id,
+                'name' => $request->name,
+                'department' => $request->department,
+                'role' => $request->role
+            ], 200);
+        }
+        catch(ValidationException $e){
+            return response()->json(['validation error'=>$e->getMessage()], 422);
+        }
+        catch(\Exception $e){
+            DB::rollBack();
+            return response()->json(['failed'=>$e->getMessage()], 500);
+        }
+        
+    }
     public function getRoles(){
         $roles = Role::select('name')->get();
 

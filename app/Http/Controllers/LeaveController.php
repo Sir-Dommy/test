@@ -303,7 +303,7 @@ class LeaveController extends Controller
                 
             // Commit the transaction if all operations are successful
             DB::commit();
-            Audit::auditLog($user_id, "UPDATE", "Updated this Leave Type : ".$leave_id);
+            Audit::auditLog($user_id, "UPDATING", "Updated this Leave Type : ".$leave_id);
             return response()->json(['user_id' => $user_id, 'leave_id' => $leave_id, 'message'=>'updated'], 200);
         }
         
