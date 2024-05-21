@@ -43,6 +43,9 @@ class AdminController extends Controller
                 if(count($user_role) > 0){
                     $user_role = $user_role [0]; 
                 } 
+                else{
+                    $user_role = "none";
+                }
             }
             
             $details[] = [
@@ -52,15 +55,11 @@ class AdminController extends Controller
                 "role" => $user_role
             ];
         }
-            
-            
-
-        return $details;
-        // return response()->json([
-        //     "user_id" => $request->user_id,
-        //     "role" => $role,
-        //     "message" => "role assigned successifully"
-        // ], 200);
+          
+        return response()->json([
+            "roles" => $this->getRoles(),
+            "users" => $details,
+        ], 200);
     }
 
     public function getRoles(){
