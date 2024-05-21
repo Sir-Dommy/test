@@ -141,7 +141,7 @@ Route::middleware('jwt.auth')->group(function(){
         Route::post('assignRole', [AdminController::class, 'assignRole']);
         Route::get('testAdmin', [AdminController::class, 'testAdmin']);
         Route::get('getRoles', [AdminController::class, 'getRoles']);
-        
+        Route::get('getUsers', [AdminController::class, 'getUsers']);
     });
         
 // comment to disable jwt authentication
