@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Departments extends Model
 {
     use HasFactory;
+
+    public $fillable = [
+        'department_name',
+        'status',
+    ];
 }

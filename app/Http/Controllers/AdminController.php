@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Departments;
 use App\Models\Leave_applicants;
 use App\Models\User;
 use Illuminate\Contracts\Validation\Validator;
@@ -58,6 +59,7 @@ class AdminController extends Controller
           
         return response()->json([
             "roles" => $this->getRoles(),
+            "departments" => $this->listDepartments(),
             "users" => $details,
         ], 200);
     }
@@ -143,5 +145,79 @@ class AdminController extends Controller
             return response()->json(['failed'=>$e->getMessage()], 500);
         }
         
+    }
+
+    public function listDepartments(){
+        $all = Departments::select('id', 'department_name', 'status')
+            ->get();
+
+        $details = [];
+        foreach($all as $single){
+            array_push($details, $single->department_name);
+        }
+
+        return $details;
+    }
+
+    public function createDepartment(Request $request){
+        try{
+            $request->validate([
+                'department_name'=> 'required|string|min:1|max:150|unique:departments,department_name',
+            ]);
+    
+            DB::beginTransaction();
+            $department = Departments::create([
+                'department_name' => $request->department_name
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                "department_id" => $department->id,
+                "department_name" => $department->department_name,
+                "status" => 1,
+                "message" => "created",
+            ], 200);
+        }
+        catch(ValidationException $e){
+            return response()->json(['validation error'=>$e->getMessage()], 422);
+        }
+        catch(\Exception $e){
+            return response()->json(['error'=>$e->getMessage()], 500);
+        }
+    }
+
+    public function updateDepartment(Request $request){
+        try{
+            $request->validate([
+                'department_id'=> 'required|integer|min:1|exists:departments,id',
+                'department_name'=> 'required|string|min:1|max:150|unique:departments,department_name',
+                'status'=> 'required|boolean',
+            ]);
+    
+            DB::beginTransaction();
+            $department = Departments::where('id', $request->department_id)
+                ->create([
+                    'department_name' => $request->department_name,
+                    'department_status' => $request->department_status
+                ]);
+
+            DB::commit();
+
+            return response()->json([
+                "department_id" => $department->id,
+                "department_name" => $department->department_name,
+                "status" => $department->status,
+                "message" => "updated"
+            ], 200);
+        }
+        catch(ValidationException $e){
+            // if
+
+            return response()->json(['validation error'=>$e->getMessage()], 422);
+        }
+        catch(\Exception $e){
+            return response()->json(['error'=>$e->getMessage()], 500);
+        }
     }
 }
