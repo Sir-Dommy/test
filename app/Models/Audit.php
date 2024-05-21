@@ -76,7 +76,13 @@ class Audit extends Model
         return $endDate->toDateString();
     }
     public static function checkGender($user_id){
-        return Leave_applicants::where('external_id', $user_id)->get('gender')[0]->gender;
+        $all = Leave_applicants::where('external_id', $user_id)->get('gender');
+        if(count($all) > 0){
+            return $all[0]->gender;
+        }
+
+        return 0;
+        
     }
     public static function checkPastLeave($user_id, $leave_type){
         
@@ -93,21 +99,12 @@ class Audit extends Model
         // Define the start and end dates for the leave period
         $start_date = Carbon::createFromDate($startingYear, 6, 1)->format('Y-m-d'); // June 1st of starting year
         $end_date = Carbon::createFromDate($endingYear, 5, 31)->format('Y-m-d'); // May 31st of ending year
-
-
-        // $leave_details = Leave_applications::where('id', $leave_app_id)->get();
-        //     if(count($leave_details) < 1){
-        //         return response()->json(['message' => 'not found'], 404);
-        //     }
             
-        //     $applicant_id = $leave_details[0]->external_id;
-        //     $leave_type = $leave_details[0]->leave_type;
-            
-            $leave_days_taken_pre_year = Leave_applications::join('hrmd_profiles','hrmd_profiles.external_id', '=', 'leave_applications.id')
-                ->where('leave_applications.external_id',$user_id)
-                ->where('leave_applications.leave_type',$leave_type)
-                ->whereBetween('leave_start_date', [$start_date, $end_date])
-                ->sum('hrmd_profiles.num_of_days');
+        $leave_days_taken_pre_year = Leave_applications::join('hrmd_profiles','hrmd_profiles.external_id', '=', 'leave_applications.id')
+            ->where('leave_applications.external_id',$user_id)
+            ->where('leave_applications.leave_type',$leave_type)
+            ->whereBetween('leave_start_date', [$start_date, $end_date])
+            ->sum('hrmd_profiles.num_of_days');
                 
                 
         return $leave_days_taken_pre_year;
@@ -166,9 +163,11 @@ class Audit extends Model
     
     public static function getUserLeaves($user_id){
         
-        $leave_types = Leave_types::where('gender_allowed', Audit::checkGender($user_id))
+        $leave_types = Leave_types::where('status', 1)
+            ->where('gender_allowed', Audit::checkGender($user_id))
             ->orWhere('gender_allowed', 'all')
             ->get();
+        
         $details = [];
         foreach($leave_types as $leave_type){
             $currentYear = Carbon::now()->year;
@@ -232,13 +231,12 @@ class Audit extends Model
         
     }
     
-    public static function checkAvailableDays($user_id, $leave_type){   
-        $this_year_leaves = Audit::checkCurrentYearLeaves($user_id, $leave_type);
-        
-        $days_carried_over = Audit::checkCarriedOverDays($user_id, $leave_type);
-        
+    public static function checkAvailableDays($user_id, $leave_type){ 
         $all = Leave_types::where('id', $leave_type)
             ->get();
+        
+        $this_year_leaves = Audit::checkCurrentYearLeaves($user_id, $leave_type);       
+        $days_carried_over = Audit::checkCarriedOverDays($user_id, $leave_type);
             
         $available_days = 0;
         foreach($all as $data){

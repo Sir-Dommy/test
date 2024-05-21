@@ -15,6 +15,7 @@ use App\Models\Hod_profiles;
 use App\Models\Holiday_types;
 use App\Models\Ps_profiles;
 use App\Models\Threat;
+use Illuminate\Validation\ValidationException;
 
 class LeaveController extends Controller
 {
@@ -25,8 +26,8 @@ class LeaveController extends Controller
     }
 
     public function test(){
-        return Audit::listEmployeeLeaves();
-        return Audit::getUserLeaves(110);
+        // return Audit::checkAvailableDays(987, 4);
+        return Audit::getUserLeaves(167);
     }
 
     //apply for a leave
@@ -37,9 +38,12 @@ class LeaveController extends Controller
             if(!(Audit::checkUser($user->id))){
                 return response()->json(['message' => 'action forbidden'], 403);
             }
-            $leave_types = Leave_types::all();
+
+            // $leave_types = Leave_types::all();
             $details = Audit::getUserLeaves($user->id);
 
+            return $details;
+            
             $applicant = Leave_applicants::join('users', 'leave_applicants.external_id', '=', 'users.id')
                 ->where('leave_applicants.external_id', $user->id)//$user_id
                 ->select('leave_applicants.external_id', 'leave_applicants.name', 'leave_applicants.gender', 'leave_applicants.department', 'leave_applicants.postal_address', 'leave_applicants.mobile_no', 'users.job_id as p_no')
@@ -109,11 +113,25 @@ class LeaveController extends Controller
     //submit personal details
     public function submitDetails(Request $request){
         try{
-            if(!(Audit::checkUser($request->user_id))){
-                return response()->json(['message' => 'action forbidden'], 403);
+            // $gender = Audit::checkGender($request->user_id);
+
+            // $leave_type_gender = Leave_types::where('id', $request->leave_type)->get('gender_allowed');
+
+            // return $leave_type_gender;
+
+            // if($gender != $leave_type_gender && $leave_type_gender != "all"){
+            //     return response()->json(['validation error' => "You cannot apply other genders leaves, apply leave that apply to your gender"], 422);
+            // }
+
+            $existing_leaves = Leave_applications::where('leave_type', $request->leave_type)
+                ->where('external_id', $request->user_id)
+                ->where('status', 0)
+                ->get();
+
+            if(count($existing_leaves) > 0){
+                return response()->json(['message' => 'existing leave application exists pending approval cancel or wait'], 403);
             }
             
-
             DB::beginTransaction();
             // Leave_applicants::where
             $applicant = Leave_applicants::where('external_id', $request->user_id)->get();
@@ -124,7 +142,7 @@ class LeaveController extends Controller
                     'gender' => 'required|string|min:3|max:10',
                     'department' => 'required|string|min:3|max:100',
                     'postal_address' => 'required|string|min:3|max:200',
-                    'mobile_no' => 'required|integer|min:10|max:14',
+                    'mobile_no' => 'required|string|min:9|max:14',
                     'sign' => 'required|string',
                 ]);
                 
@@ -141,8 +159,9 @@ class LeaveController extends Controller
             
             $request->validate([
                 'user_id' => 'required|integer|min:1',
+                'designation' => 'required|string|min:3|max:50',
                 'leave_type' => 'required|integer|min:1',
-                'num_of_days' => 'required|string|min:1|max:'.Audit::daysYouCanApplyFor($request->user_id, $request->leave_type),
+                'num_of_days' => 'required|integer|min:1|max:'.Audit::daysYouCanApplyFor($request->user_id, $request->leave_type),
                 'leave_begins_on' => 'required|date|after_or_equal:today',
                 'leave_address' => 'required|string|min:3|max:200',
                 'salary_paid_to' => 'required',
@@ -175,6 +194,11 @@ class LeaveController extends Controller
                 'message'=>'success'], 
                 200);
         }
+
+        catch(ValidationException $e){
+            DB::rollBack();
+            return response()->json(['validation error' => $e->getMessage()], 422);
+        }
         
         catch (\Exception $e){
             DB::rollBack();
@@ -185,45 +209,64 @@ class LeaveController extends Controller
     //post Leave type
     public function createLeaveType(Request $request, $user_id){
         try{
-            if(!(Audit::checkUser($user_id))){
-                return response()->json(['message' => 'action forbidden'], 403);
-            }
-            
-            $id = Leave_types::where('name',$request->name)
+            // if(!(Audit::checkUser($user_id))){
+            //     return response()->json(['message' => 'action forbidden'], 403);
+            // }
+
+            $leave_type = Leave_types::where('is_main', 1)
                         ->get();
+            
             // if leave type does not exist
-            if(count($id)<1){
-                DB::beginTransaction();
-                // Leave_applicants::where
-                Leave_types::create([
-                    'added_by'=> $user_id,
-                    'name'=> $request->name,
-                    'num_of_days'=> $request->num_of_days,
-                    'can_carry_forward'=> $request->can_carry_forward,
-                    'is_main'=> $request->is_main,
-                    'deduct_from_main'=> $request->deduct_from_main,
-                    'max_carry_over_days'=> $request->max_carry_over_days,
-                    'max_days_per_application'=> $request->max_days_per_application,
-                    'weekends_included'=> $request->weekends_included,
-                    'holidays_included'=> $request->holidays_included,
-                    'status'=> $request->status,
-                    ]);
-                    
-                $id = Leave_types::where('name',$request->name)
-                            ->select('id')
-                            ->get();
-                $id = $id[0]['id'];
-                // Commit the transaction if all operations are successful
-                DB::commit();
-                Audit::auditLog($user_id, "POST", "Created Leave Type : ".$request->name);
-                return response()->json(['user_id' => $user_id,'leave_type'=>$request->name, 'leave_id'=>$id, 'message'=>'leave type created'], 200);
+            if(count($leave_type) > 0 && $request->is_main == 1){
+                return response()->json(['validation error' => $leave_type[0]->name." is already set as main, do bot set this leave as main"], 422);
             }
+
+            $request->validate([
+                'name' => 'required|string|min:3|max:70|unique:leave_types,name',
+                'num_of_days' => 'required|integer|min:1|max:365',
+                'can_carry_forward' => 'required|boolean',
+                'is_main' => 'required|boolean',
+                'deduct_from_main' => 'required|boolean',
+                'max_carry_over_days' => 'required|integer|min:0|max:365',
+                'max_days_per_application' => 'required|integer|min:1|max:365',
+                'gender_allowed' => 'required|string|min:3|max:10',
+                'weekends_included' => 'required|boolean',
+                'holidays_included' => 'required|boolean',
+                'status' => 'required|boolean',
+            ]);
+
+
+            DB::beginTransaction();
+            // Leave_applicants::where
+            Leave_types::create([
+                'added_by'=> $user_id,
+                'name'=> $request->name,
+                'num_of_days'=> $request->num_of_days,
+                'can_carry_forward'=> $request->can_carry_forward,
+                'is_main'=> $request->is_main,
+                'deduct_from_main'=> $request->deduct_from_main,
+                'max_carry_over_days'=> $request->max_carry_over_days,
+                'max_days_per_application'=> $request->max_days_per_application,
+                'gender_allowed'=> $request->gender_allowed,
+                'weekends_included'=> $request->weekends_included,
+                'holidays_included'=> $request->holidays_included,
+                'status'=> $request->status,
+                ]);
+                
+            $id = Leave_types::where('name',$request->name)
+                        ->select('id')
+                        ->get();
+            $id = $id[0]['id'];
+            // Commit the transaction if all operations are successful
+            DB::commit();
+            Audit::auditLog($user_id, "POST", "Created Leave Type : ".$request->name);
+            return response()->json(['user_id' => $user_id,'leave_type'=>$request->name, 'leave_id'=>$id, 'message'=>'leave type created'], 200);
             
-            // else give an error leave already exists
-            else{
-                return response()->json(['error' => 'leave already exist!!!', 'leave_name'=>$request->name], 409);
-            }
             
+        }
+
+        catch(ValidationException $e){
+            return response()->json(['validation error' => $e->getMessage()], 422);
         }
         
         catch (\Exception $e){

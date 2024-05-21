@@ -25,6 +25,12 @@ class AdminController extends Controller
         }
         
     }
+
+    public function getRoles(){
+        $roles = Role::select('id', 'name')->get();
+
+        return $roles;
+    }
     //assign roles
     public function assignRole(Request $request){
         try{

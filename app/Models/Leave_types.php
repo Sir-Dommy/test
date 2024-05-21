@@ -18,6 +18,7 @@ class Leave_types extends Model
         'deduct_from_main',
         'max_carry_over_days',
         'max_days_per_application',
+        'gender_allowed',
         'weekends_included',
         'holidays_included',
         'status'

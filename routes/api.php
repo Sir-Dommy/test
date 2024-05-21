@@ -140,6 +140,7 @@ Route::middleware('jwt.auth')->group(function(){
     Route::middleware('check.admin')->group(function(){
         Route::post('assignRole', [AdminController::class, 'assignRole']);
         Route::get('testAdmin', [AdminController::class, 'testAdmin']);
+        Route::get('getRoles', [AdminController::class, 'getRoles']);
         
     });
         
