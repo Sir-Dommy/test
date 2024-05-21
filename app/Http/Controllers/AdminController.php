@@ -68,7 +68,7 @@ class AdminController extends Controller
         $roles_array = [];
 
         foreach($roles as $role){
-             $roles_array[] = $role;
+            array_push($roles_array, $role->name);
         }
 
         return $roles_array;
