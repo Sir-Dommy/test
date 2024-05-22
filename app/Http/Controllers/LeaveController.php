@@ -286,25 +286,45 @@ class LeaveController extends Controller
             return response()->json(['error' => 'leave type not found'], 404);
         }
         try{
+            $request->validate([
+                'name' => 'required|string|min:3|max:70|unique:leave_types,name',
+                'num_of_days' => 'required|integer|min:1|max:365',
+                'can_carry_forward' => 'required|boolean',
+                'is_main' => 'required|boolean',
+                'deduct_from_main' => 'required|boolean',
+                'max_carry_over_days' => 'required|integer|min:0|max:365',
+                'max_days_per_application' => 'required|integer|min:1|max:365',
+                'gender_allowed' => 'required|string|min:3|max:10',
+                'weekends_included' => 'required|boolean',
+                'holidays_included' => 'required|boolean',
+                'status' => 'required|boolean',
+            ]);
             
             DB::beginTransaction();
             Leave_types::where('id', $leave_id)
-                    ->update(['added_by'=> $user_id,
-                        'name'=> $request->name,
-                        'num_of_days'=> $request->num_of_days,
-                        'can_carry_forward'=> $request->can_carry_forward,
-                        'is_main'=> $request->is_main,
-                        'deduct_from_main'=> $request->deduct_from_main,
-                        'max_carry_over_days'=> $request->max_carry_over_days,
-                        'max_days_per_application'=> $request->max_days_per_application,
-                        'weekends_included'=> $request->weekends_included,
-                        'holidays_included'=> $request->holidays_included,
-                        'status'=> $request->status,]);
+                ->update([
+                    'added_by'=> $user_id,     
+                    'name'=> $request->name,
+                    'num_of_days'=> $request->num_of_days,
+                    'can_carry_forward'=> $request->can_carry_forward,
+                    'is_main'=> $request->is_main,
+                    'deduct_from_main'=> $request->deduct_from_main,
+                    'max_carry_over_days'=> $request->max_carry_over_days,
+                    'max_days_per_application'=> $request->max_days_per_application,
+                    'gender_allowed'=> $request->gender_allowed,
+                    'weekends_included'=> $request->weekends_included,
+                    'holidays_included'=> $request->holidays_included,
+                    'status'=> $request->status,
+                ]);
                 
             // Commit the transaction if all operations are successful
             DB::commit();
             Audit::auditLog($user_id, "UPDATING", "Updated this Leave Type : ".$leave_id);
             return response()->json(['user_id' => $user_id, 'leave_id' => $leave_id, 'message'=>'updated'], 200);
+        }
+
+        catch(ValidationException $e){
+            return response()->json(['validation error' => $e->getMessage()], 422);
         }
         
         catch (\Exception $e){

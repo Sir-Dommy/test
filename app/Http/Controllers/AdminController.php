@@ -64,7 +64,7 @@ class AdminController extends Controller
         ], 200);
     }
 
-    public function updateUsers(Request $request){
+    public function updateUser(Request $request){
         try{
             $request->validate([
                 'user_id' => 'required|integer|min:1|exists:users,id',
