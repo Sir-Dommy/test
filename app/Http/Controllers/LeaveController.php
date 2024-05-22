@@ -975,97 +975,39 @@ class LeaveController extends Controller
         }
     }
 
-    public function listLeaves(){
-        try{
-            //  check admin leaves  for admin or suoeradmin 
-            if(User::getUser()->hasRole('admin')){    
-                return response()->json(Audit::adminList(), 200);
-            }
-
-            if(User::getUser()->hasRole('hrmd')){
-                
-                return response()->json(Audit::listHrmd(), 200);
-            }
-
-            if(User::getUser()->hasRole('ps')){ 
-                return response()->json(Audit::listPs(), 200);
-            }
-
-            if(User::getUser()->hasRole('hod')){
-                return response()->json(Audit::listHod(), 200);
-            }
-
-            if(User::getUser()->hasRole('employee')){
-                // return response()->json(User::getDepartment(), 200);
-                return response()->json(Audit::listEmployeeLeaves(), 200);
-            }
-            else{
-                Threat::create([
-                    'done_by'=> User::getUserId(),
-                    'threat'=>"Tried to access leave lists",
-                ]);
-            }
-            // return response()->json($all, 200);
-        }
-        catch(\Exception $e){
-            return response()->json(['Error!!!' => $e->getMessage()], 500);
-        }
-        
-    }
-    
-    //function to create hrmd profile
-    public function createHrmdProfile(Request $request, $user_id, $leave_app_id){
-        try{
-            if(!(Audit::checkUser($user_id))){
-                return response()->json(['message' => 'action forbidden'], 401);
-            }
-            
-            $all = Leave_applications::where('id',$leave_app_id)->get();
-            
-            if(count($all)<1){
-                return response()->json(['error' => "leave application not found"], 404);   
-            }
-            
-            $hod = Hod_profiles::where('external_id',$leave_app_id)
-                                ->where('signed',1)
-                                ->get();
-            
-            if(count($hod)<1){
-                return response()->json(['error' => "leave not yet signed by HOD"], 403);   
-            }
-            
-            $signed = Hrmd_profiles::where('external_id',$leave_app_id)
-                                    ->where('signed',1)
-                                    ->get();
-            if(count($all)>0){
-                return response()->json(['error' => "leave application already appproved"], 422);   
-            }
-            
+     //function to create hrmd profile
+     public function hrmdApproveReject(Request $request){
+        try{            
+                        
             DB::beginTransaction();
             $to_resume_on = Audit::calculateEndDate($request->leave_start_date, $request->num_of_days);
             Hrmd_profiles::create([
-                    'external_id'=> $leave_app_id,
+                    'external_id'=> $request->leave_app_id,
                     'leave_start_date'=> $request->leave_start_date,
                     'num_of_days'=> $request->num_of_days,
                     'to_resume_on'=> $to_resume_on,
                     'date'=> $request->date,
                     'signed'=> 1,
-                    'signed_by'=> $user_id,
+                    'signed_by'=> $request->user_id,
                     ]);
                 
-            Leave_applications::where('id',$leave_app_id)
+            Leave_applications::where('id',$request->leave_app_id)
                 ->update([
                     'stage'=> 4,
                     ]);
                     
-            Leave_applications::where('id',$leave_app_id)
+            Leave_applications::where('id',$request->leave_app_id)
                 ->update([
                     'status'=> "Approved",
                     ]);
             // Commit the transaction if all operations are successful
             DB::commit();
-            Audit::auditLog($user_id, "Approved", " Approved this Application : ".$leave_app_id);
-            return response()->json(['user_id' => $user_id, 'leave_app_id' => $leave_app_id, 'message'=>'approved'], 200);
+            Audit::auditLog($request->user_id, "Approved", " Approved this Application : ".$request->leave_app_id);
+            return response()->json([
+                'user_id' => $request->user_id, 
+                'leave_app_id' => $request->leave_app_id, 
+                'message'=>'approved'
+            ], 200);
         }
         catch (\Exception $e){
             DB::rollBack();
@@ -1125,6 +1067,45 @@ class LeaveController extends Controller
             return response()->json(['Error!!!' => $e->getMessage()], 500);
         }
     }
+
+    public function listLeaves(){
+        try{
+            //  check admin leaves  for admin or suoeradmin 
+            if(User::getUser()->hasRole('admin')){    
+                return response()->json(Audit::adminList(), 200);
+            }
+
+            if(User::getUser()->hasRole('hrmd')){
+                
+                return response()->json(Audit::listHrmd(), 200);
+            }
+
+            if(User::getUser()->hasRole('ps')){ 
+                return response()->json(Audit::listPs(), 200);
+            }
+
+            if(User::getUser()->hasRole('hod')){
+                return response()->json(Audit::listHod(), 200);
+            }
+
+            if(User::getUser()->hasRole('employee')){
+                // return response()->json(User::getDepartment(), 200);
+                return response()->json(Audit::listEmployeeLeaves(), 200);
+            }
+            else{
+                Threat::create([
+                    'done_by'=> User::getUserId(),
+                    'threat'=>"Tried to access leave lists",
+                ]);
+            }
+            // return response()->json($all, 200);
+        }
+        catch(\Exception $e){
+            return response()->json(['Error!!!' => $e->getMessage()], 500);
+        }
+        
+    }
+    
     
     // function to check leave application details can be accessed by applicant, hod,ps and hrmd
     public function checkApplicationDetails($user_id, $leave_app_id){
