@@ -66,6 +66,14 @@ class AdminController extends Controller
 
     public function updateUser(Request $request){
         try{
+            // if (!$request->hasHeader('Authorization')) {
+            //     return response()->json(['error' => 'Authorization header not found'], 401);
+            // } 
+            // else{
+            //     $token = JWTAuth::parseToken()->getPayload()->toArray();
+            //     return $token;
+            // }   
+            
             $request->validate([
                 'user_id' => 'required|integer|min:1|exists:users,id',
                 // 'name' => 'required|string|min:1|max:70',
@@ -83,6 +91,8 @@ class AdminController extends Controller
 
             $user = User::find($request->user_id);
             // removeAllRolesFromUser($user);
+            $user -> syncRoles([]);
+
             $user->assignRole($request->role);
 
             DB::commit();
@@ -125,10 +135,12 @@ class AdminController extends Controller
             DB::beginTransaction();
             $user = User::find($request->user_id);
             $role = Role::findByName($request->role);
-            $permission = Permission::findByName($request->permission);
+            // $permission = Permission::findByName($request->permission);
+
+            $user -> syncRoles([]);
             // var_dump($user);
             $user->assignRole($role);
-            $user->givePermissionTo($permission);
+            // $user->givePermissionTo($permission);
 
             DB::commit();
             return response()->json([

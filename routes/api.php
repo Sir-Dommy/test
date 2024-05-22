@@ -29,7 +29,6 @@ route::get('test2', [LeaveController::class, 'test']);
 Route::post('register', [ApiController::class, 'register']);
 Route::post('login', [ApiController::class, 'login']);
 
-
 // comment to disable jwt authentication
 Route::middleware('jwt.auth')->group(function(){
     Route::post('logout', [ApiController::class, 'logout']);
