@@ -68,8 +68,8 @@ class AdminController extends Controller
         try{
             $request->validate([
                 'user_id' => 'required|integer|min:1|exists:users,id',
-                'name' => 'required|string|min:1|max:70',
-                'department' => 'required|string|min:3|max:150',
+                // 'name' => 'required|string|min:1|max:70',
+                'department' => 'required|string|min:3|max:150:exists,department_name',
                 'role' => 'required|string|min:1|max:20|exists:roles,name',
             ]);
 
@@ -77,7 +77,7 @@ class AdminController extends Controller
             
             Leave_applicants::where('external_id', $request->user_id)
                 ->update([
-                    'name' => $request->name,
+                    // 'name' => $request->name,
                     'department' => $request->department,
                 ]);
 
