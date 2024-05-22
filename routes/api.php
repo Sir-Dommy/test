@@ -122,6 +122,7 @@ Route::middleware('jwt.auth')->group(function(){
     Route::get('/checkAvailableDays/{user_id}/{leave_type}', [LeaveController::class, 'checkAvailableDays']);
     Route::get('/listLeaves', [LeaveController::class, 'listLeaves']);
 
+    Route::put('updateUser', [AdminController::class, 'updateUser']);
 
 
 
@@ -142,7 +143,6 @@ Route::middleware('jwt.auth')->group(function(){
         Route::get('testAdmin', [AdminController::class, 'testAdmin']);
         Route::get('getRoles', [AdminController::class, 'getRoles']);
         Route::get('getUsers', [AdminController::class, 'getUsers']);
-        Route::put('updateUser', [AdminController::class, 'updateUser']);
         Route::get('listDepartments', [AdminController::class, 'listDepartments']);
         Route::post('createDepartment', [AdminController::class, 'createDepartment']);
         Route::put('updateDepartment', [AdminController::class, 'updateDepartment']);
