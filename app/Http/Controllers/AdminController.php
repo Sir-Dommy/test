@@ -31,14 +31,25 @@ class AdminController extends Controller
     }
 
     public function getUsers(){
-        $all = Leave_applicants::select('external_id', 'name', 'department')->get();
+        $all = User::select('id')->get();
 
         $details = [];
         $user_role = "none";
 
         foreach($all as $single){
+            $applicant = Leave_applicants::where('external_id', $single->id)
+                ->select('name', 'department')
+                ->get();
+
+            $name  = null;
+            $department = null;
+            if(count($applicant) > 0){
+                $name = $applicant[0]->name;
+                $department = $applicant[0]->department;
+            }
+            
             $roles = Role::all();
-            $user = User::find($single->external_id);
+            $user = User::find($single->id);
             if($user){
                 $user_role = $user->getRoleNames();
                 if(count($user_role) > 0){
@@ -50,9 +61,9 @@ class AdminController extends Controller
             }
             
             $details[] = [
-                "user_id" => $single->external_id,
-                "name" => $single->name,
-                "department" => $single->department,
+                "user_id" => $single->id,
+                "name" => $name,
+                "department" => $department,
                 "role" => $user_role
             ];
         }
