@@ -16,6 +16,7 @@ class Hrmd_profiles extends Model
         'to_resume_on',
         'date',
         'signed',
-        'signed_by',
+        'approved_by',
+        'rejected_by',
     ];
 }

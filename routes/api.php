@@ -109,7 +109,7 @@ Route::middleware('jwt.auth')->group(function(){
     Route::put('/ammendHodApproval/{user_id}/{leave_app_id}', [LeaveController::class, 'ammendHodApproval']);
     Route::put('/psApproveReject', [LeaveController::class, 'psApproveReject']);
     Route::put('/ammendPsApproval/{user_id}/{leave_app_id}', [LeaveController::class, 'ammendPsApproval']);
-    Route::post('/createHrmdProfile/{user_id}/{leave_app_id}', [LeaveController::class, 'createHrmdProfile']);
+    Route::put('/hrmdApproveReject', [LeaveController::class, 'hrmdApproveReject']);
     Route::post('/rejectHrmdProfile/{user_id}/{leave_app_id}', [LeaveController::class, 'rejectHrmdProfile']);
     Route::get('/checkApplicationDetails/{user_id}/{leave_app_id}', [LeaveController::class, 'checkApplicationDetails']);
     Route::get('/checkHodLevelDetails/{user_id}', [LeaveController::class, 'checkHodLevelDetails']); 
