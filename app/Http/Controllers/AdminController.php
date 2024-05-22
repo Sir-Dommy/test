@@ -82,6 +82,7 @@ class AdminController extends Controller
                 ]);
 
             $user = User::find($request->user_id);
+            // removeAllRolesFromUser($user);
             $user->assignRole($request->role);
 
             DB::commit();

@@ -28,7 +28,6 @@ Route::get('test', [ApiController::class, 'test']);
 route::get('test2', [LeaveController::class, 'test']);
 Route::post('register', [ApiController::class, 'register']);
 Route::post('login', [ApiController::class, 'login']);
-Route::put('updateUser', [AdminController::class, 'updateUser']);
 
 
 // comment to disable jwt authentication
@@ -143,6 +142,7 @@ Route::middleware('jwt.auth')->group(function(){
         Route::get('testAdmin', [AdminController::class, 'testAdmin']);
         Route::get('getRoles', [AdminController::class, 'getRoles']);
         Route::get('getUsers', [AdminController::class, 'getUsers']);
+        Route::put('updateUser', [AdminController::class, 'updateUser']);
         Route::get('listDepartments', [AdminController::class, 'listDepartments']);
         Route::post('createDepartment', [AdminController::class, 'createDepartment']);
         Route::put('updateDepartment', [AdminController::class, 'updateDepartment']);
