@@ -28,6 +28,7 @@ Route::get('test', [ApiController::class, 'test']);
 route::get('test2', [LeaveController::class, 'test']);
 Route::post('register', [ApiController::class, 'register']);
 Route::post('login', [ApiController::class, 'login']);
+Route::put('updateUser', [AdminController::class, 'updateUser']);
 
 
 // comment to disable jwt authentication
@@ -122,7 +123,6 @@ Route::middleware('jwt.auth')->group(function(){
     Route::get('/checkAvailableDays/{user_id}/{leave_type}', [LeaveController::class, 'checkAvailableDays']);
     Route::get('/listLeaves', [LeaveController::class, 'listLeaves']);
 
-    Route::put('updateUser', [AdminController::class, 'updateUser']);
 
 
 
