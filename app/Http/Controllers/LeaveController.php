@@ -15,6 +15,7 @@ use App\Models\Hod_profiles;
 use App\Models\Holiday_types;
 use App\Models\Ps_profiles;
 use App\Models\Threat;
+use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 
 class LeaveController extends Controller
@@ -573,42 +574,126 @@ class LeaveController extends Controller
     }
     
     // function for approval by hod
-    public function hodApproval(Request $request, $user_id, $leave_app_id){
+    public function hodApproveReject(Request $request){
         try{
-            if(!(Audit::checkUser($user_id))){
-                return response()->json(['message' => 'action forbidden'], 403);
+
+            $request->validate([
+                'user_id'=> 'required|integer|min:1|exists:users,id',
+                'leave_app_id'=> 'required|integer|min:1|exists:leave_applications,id',
+                'approved' => 'boolean',
+                'rejected' => 'boolean',
+            ]);
+
+            $approved = 0;
+            $rejected = 0;
+            $date = Carbon::now()->format('Y-m-d');
+            if(isset($request->approved) && $request->approved ==1 && $request->rejected ==0 ){
+                $approved = 1;
             }
-            
-            $all = Leave_applications::where('id',$leave_app_id)->get();
-            
-            if(count($all)<1){
-                return response()->json(['error' => "leave not found"], 404);   
+            elseif(isset($request->rejected) && $request->rejected ==1 && $request->approved ==0 ){
+                $rejected = 1;
             }
-            $all = Hod_profiles::where('external_id',$leave_app_id)
-                        ->where('approved_by',$user_id)
+            else{
+                return response()->json(['validation error' => "either approved or rejected must be set and only one should be set to true"], 422);
+            }
+
+            $all = Hod_profiles::where('external_id',$request->leave_app_id)
                         ->get();
-            if(count($all)>0){
-                return response()->json(['error'=>'leave already signed'], 400);
-            }
-            DB::beginTransaction();
-            Hod_profiles::create([
-                'approved_by'=>$user_id,
-                'external_id'=>$leave_app_id,
-                'recommend_other'=>$request->recommend_other,
-                'date'=>$request->date,
-                'signed'=>1,
-                ]);   
-            
-            Leave_applications::where('id',$leave_app_id)
-                ->update([
-                    'stage'=> 2,
-                    ]);
+            if(count($all) < 1){
+                if(!empty($approved)){
+                    DB::beginTransaction();
+                    Hod_profiles::create([
+                        'external_id'=>$request->leave_app_id,
+                        'recommend_other'=>$request->recommend_other,
+                        'approved_by'=>$request->user_id,
+                        'rejected_by'=>null,
+                        'date'=>$date,
+                        'signed'=>1,
+                        ]);   
                     
-            // Commit the transaction if all operations are successful
-            DB::commit();
-            Audit::auditLog($user_id, "Signed", " Signed this leave application : ".$leave_app_id);
+                    Leave_applications::where('id',$request->leave_app_id)
+                        ->update([
+                            'stage'=> 2,
+                            ]);
+                            
+                    // Commit the transaction if all operations are successful
+                    DB::commit();
+                }
+                
+                else if(!empty($rejected)){
+                    DB::beginTransaction();
+                    Hod_profiles::create([
+                        'external_id'=>$request->leave_app_id,
+                        'recommend_other'=>$request->recommend_other,
+                        'approved_by'=>null,
+                        'rejected_by'=>$request->user_id,
+                        'date'=>$date,
+                        'signed'=>1,
+                        ]);   
+                    
+                    Leave_applications::where('id',$request->leave_app_id)
+                        ->update([
+                            'stage'=> 2,
+                            'status'=>2,
+                            ]);
+                            
+                    // Commit the transaction if all operations are successful
+                    DB::commit();
+                }
+            }
+
+            else if(count($all) > 0){
+                if(!empty($approved)){
+                    DB::beginTransaction();
+                    Hod_profiles::where('external_id', $request->leave_app_id,)
+                        ->update([
+                            'recommend_other'=>$request->recommend_other,
+                            'approved_by'=>$request->user_id,
+                            'rejected_by'=>null,
+                            'date'=>$date,
+                            'signed'=>1,
+                            ]);   
+                    
+                    Leave_applications::where('id',$request->leave_app_id)
+                        ->update([
+                            'stage'=> 2,
+                            ]);
+                            
+                    // Commit the transaction if all operations are successful
+                    DB::commit();
+                }
+                
+                else if(!empty($rejected)){
+                    DB::beginTransaction();
+                    Hod_profiles::where('external_id', $request->leave_app_id,)
+                        ->update([
+                            'recommend_other'=>$request->recommend_other,
+                            'approved_by'=>null,
+                            'rejected_by'=>$request->user_id,
+                            'date'=>$date,
+                            'signed'=>1,
+                            ]);   
+                    
+                    Leave_applications::where('id',$request->leave_app_id)
+                        ->update([
+                            'stage'=> 2,
+                            'status'=>2,
+                            ]);
+                            
+                    // Commit the transaction if all operations are successful
+                    DB::commit();
+                }
+            }
+            
+            Audit::auditLog($request->user_id, "Signed", " Signed this leave application : ".$request->leave_app_id);
             // $user_id = Audit::calculateEndDate($request->leave_begins_on, $request->num_of_days);
-            return response()->json(['user_id' => $user_id, 'leave_app_id'=>$leave_app_id, 'message'=>'signed'], 200);
+            return response()->json([
+                'user_id' => $request->user_id, 
+                'leave_app_id'=>$request->leave_app_id,
+                'approved'=>$approved, 
+                'rejected'=>$rejected,
+                'message'=>'success'
+            ], 200);
         }
         catch (\Exception $e){
             DB::rollBack();
