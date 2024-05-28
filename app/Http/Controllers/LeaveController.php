@@ -503,7 +503,7 @@ class LeaveController extends Controller
                 
             $leave_days = Leave_types::where('id', $leave_details[0]->leave_type)->get();
                 
-            $hrmd = Hrmd_profiles::join('leave_applicants', 'hrmd_profiles.signed_by', '=', 'leave_applicants.external_id')
+            $hrmd = Hrmd_profiles::join('leave_applicants', 'hrmd_profiles.approved_by', '=', 'leave_applicants.external_id')
                     ->where('hrmd_profiles.external_id',$leave_app_id)
                     ->select('hrmd_profiles.num_of_days','hrmd_profiles.to_resume_on','hrmd_profiles.date','leave_applicants.name','leave_applicants.sign','leave_applicants.department')
                     ->get();
