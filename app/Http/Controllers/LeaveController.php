@@ -457,11 +457,9 @@ class LeaveController extends Controller
     }
     
     // function to my leaves for each user
-    public function getMyLeaves(Request $request, $user_id){
+    public function getMyLeaves(Request $request){
         try{
-            if(!(Audit::checkUser($user_id))){
-                return response()->json(['message' => 'action forbidden'], 403);
-            }
+            $user_id = User::getUserId();
             
             $all = Leave_applications::join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')->where('leave_applications.date', '>' ,Audit::startDate())
                 ->where('leave_applications.external_id', $user_id)

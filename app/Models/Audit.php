@@ -265,7 +265,7 @@ class Audit extends Model
         return 0;
     }
     
-    public function startDate(){
+    public static function startDate(){
         $currentYear = Carbon::now()->year;
         $currentMonth = Carbon::now()->month;
         
@@ -280,7 +280,7 @@ class Audit extends Model
         return $start_date;
     }
     
-    public function endDate(){
+    public static function endDate(){
         $currentYear = Carbon::now()->year;
         $currentMonth = Carbon::now()->month;
         

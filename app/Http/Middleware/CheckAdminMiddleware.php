@@ -27,21 +27,8 @@ class CheckAdminMiddleware
             }
             
         }
-        // // Check if user is authenticated
-        // if (Auth::check()) {
-        //     $user = Auth::user();
-        //     // Check if user is admin
-        //     if ($user->hasRole('sir')) {
-        //         // Check if admin's email matches superadmin email from config
-        //         $superAdminEmail = Config::get('yourconfig.superadmin_email');
-        //         if ($user->email === $superAdminEmail) {
-        //             // User is admin and matches superadmin email, allow access
-        //             return $next($request);
-        //         }
-        //     }
-        // }
 
         // If user is not authenticated or is not an admin or their email doesn't match superadmin email, deny access
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'action forbidden'], 403);
     }
 }
