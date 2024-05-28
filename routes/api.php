@@ -113,7 +113,7 @@ Route::middleware('jwt.auth')->group(function(){
     
     // protected hod routes
     Route::group(['middleware' => ['roles.check:hod,admin']], function(){
-        Route::put('/hodApproveReject', [LeaveController::class, 'hodApproveReject']);
+        Route::post('/hodApproveReject', [LeaveController::class, 'hodApproveReject']);
         Route::put('/ammendHodApproval/{user_id}/{leave_app_id}', [LeaveController::class, 'ammendHodApproval']);  
         Route::get('/checkHodLevelDetails/{user_id}', [LeaveController::class, 'checkHodLevelDetails']); 
   
