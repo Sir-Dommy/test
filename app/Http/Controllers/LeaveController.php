@@ -710,6 +710,9 @@ class LeaveController extends Controller
                 'message'=>'success'
             ], 200);
         }
+        catch(ValidationException $e){
+            return response()->json(['validation error' => $e->getMessage()], 422);
+        }
         catch (\Exception $e){
             DB::rollBack();
             return response()->json(['Error!!!' => $e->getMessage()], 500);
@@ -866,6 +869,9 @@ class LeaveController extends Controller
                 'leave_app_id'=>$request->leave_app_id,
                 'message'=>'success'
             ], 200);
+        }
+        catch(ValidationException $e){
+            return response()->json(['validation error' => $e->getMessage()], 422);
         }
         catch (\Exception $e){
             DB::rollBack();
@@ -1123,6 +1129,9 @@ class LeaveController extends Controller
                 'leave_app_id' => $request->leave_app_id, 
                 'message'=>'success'
             ], 200);
+        }
+        catch(ValidationException $e){
+            return response()->json(['validation error' => $e->getMessage()], 422);
         }
         catch (\Exception $e){
             DB::rollBack();
