@@ -507,6 +507,10 @@ class LeaveController extends Controller
                     ->where('hrmd_profiles.external_id',$leave_app_id)
                     ->select('hrmd_profiles.num_of_days','hrmd_profiles.to_resume_on','hrmd_profiles.date','leave_applicants.name','leave_applicants.sign','leave_applicants.department')
                     ->get();
+
+            if(count($hrmd) < 1){
+                return response()->json(['error' => 'leave application not approved yet'], 422);
+            }
             
             $last_leave = Hrmd_profiles::where('date', '<', $hrmd[0]->date)
                 ->orderBy('date', 'desc') // Sort by date in descending order

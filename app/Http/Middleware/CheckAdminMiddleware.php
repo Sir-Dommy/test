@@ -29,6 +29,6 @@ class CheckAdminMiddleware
         }
 
         // If user is not authenticated or is not an admin or their email doesn't match superadmin email, deny access
-        return response()->json(['error' => 'action forbidden'], 403);
+        return response()->json(['error' => 'action forbidden, you do not have dmin permissions'], 403);
     }
 }
