@@ -592,6 +592,7 @@ class LeaveController extends Controller
                 'leave_app_id'=> 'required|integer|min:1|exists:leave_applications,id',
                 'approved' => 'boolean',
                 'rejected' => 'boolean',
+                'recommend_other' => 'required|boolean',
             ]);
 
             $ps = Ps_profiles::where('external_id', $request->leave_app_id)->get();
