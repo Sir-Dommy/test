@@ -43,8 +43,6 @@ class LeaveController extends Controller
 
             // $leave_types = Leave_types::all();
             $details = Audit::getUserLeaves($user->id);
-
-            return $details;
             
             $applicant = Leave_applicants::join('users', 'leave_applicants.external_id', '=', 'users.id')
                 ->where('leave_applicants.external_id', $user->id)//$user_id
