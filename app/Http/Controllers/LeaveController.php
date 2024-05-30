@@ -885,11 +885,11 @@ class LeaveController extends Controller
                 DB::commit();
             }
             else{
-                return $rejected;
+                // return $rejected;
                 DB::beginTransaction();
                 Ps_profiles::create([
                     'approved_by'=>$approved,
-                    'rejected_by'=>$rejected,
+                    'rejected_by'=>5,
                     'external_id'=>$request->leave_app_id,
                     'date'=>$date,
                     'signed'=>1,
