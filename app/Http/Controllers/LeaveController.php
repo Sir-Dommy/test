@@ -197,7 +197,7 @@ class LeaveController extends Controller
                     'gender' => 'required|string|min:3|max:10',
                     'department' => 'required|integer|min:1|exists:departments,id',
                     'postal_address' => 'required|string|min:3|max:200',
-                    'mobile_no' => 'required|string|min:9|max:14',
+                    'mobile_no' => 'required|string|min:9|max:14|unique:leave_applicants,mobile_no',
                     'sign' => 'required',
                 ]);
                 
