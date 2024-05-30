@@ -10,6 +10,7 @@ class Ps_profiles extends Model
     use HasFactory;
     public $fillable = [
         'approved_by',
+        'rejected_by',
         'external_id',
         'date',
         'signed',
