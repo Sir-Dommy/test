@@ -475,15 +475,19 @@ class LeaveController extends Controller
     }
     
     // function aggregated report for each leave application
-    public function getLeaveReport(Request $request, $user_id, $leave_app_id){
+    public function getLeaveReport(Request $request, $leave_app_id){
         try{
+            $user_id = User::getUserId();
             if(!(Audit::checkUser($user_id))){
                 return response()->json(['message' => 'action forbidden'], 403);
             }
             $details = [];
+
+            $leave_details = Leave_applications::where('id', $leave_app_id)
+                ->get();
             
             $user = Leave_applicants::join('users', 'leave_applicants.external_id', '=', 'users.id')
-                    ->where('external_id',$user_id)
+                    ->where('external_id',$leave_details[0]->external_id)
                     ->select('leave_applicants.external_id','leave_applicants.name','leave_applicants.department','leave_applicants.postal_address','leave_applicants.mobile_no','leave_applicants.sign', 'users.job_id')
                     ->get();
                     
@@ -495,9 +499,6 @@ class LeaveController extends Controller
             $ps = Ps_profiles::join('leave_applicants', 'ps_profiles.approved_by', '=', 'leave_applicants.external_id')
                 ->where('ps_profiles.external_id',$leave_app_id)
                 ->select('ps_profiles.date', 'leave_applicants.name', 'leave_applicants.sign')
-                ->get();
-                
-            $leave_details = Leave_applications::where('id', $leave_app_id)
                 ->get();
                 
             $leave_days = Leave_types::where('id', $leave_details[0]->leave_type)->get();
@@ -1416,6 +1417,5 @@ class LeaveController extends Controller
         } 
     }
     
-    
-    
+       
 }
