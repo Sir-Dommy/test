@@ -223,7 +223,7 @@ class LeaveController extends Controller
                 'account_no' => 'string|min:3|max:50',
             ]);
 
-            Leave_applications::create([
+            $leave_application = Leave_applications::create([
                 'external_id'=>$request->user_id,
                 'designation'=>$request->designation,
                 'leave_type'=>$request->leave_type,
@@ -237,12 +237,20 @@ class LeaveController extends Controller
                 // 'stage'=>$request->stage,
                 // 'status'=>$request->status,
                 ]); 
+
+            if(User::getUser()->hasRole('hod') || User::getUser()->hasRole('sa')){
+                Ps_profiles::create([
+                    'external_id'=> $leave_application->id,
+                    'date'=> $date,
+                ]);
+            }
                 
             // Commit the transaction if all operations are successful
             DB::commit();
             Audit::auditLog($request->user_id, "POST", "Created Leave Application Profile and application");
             return response()->json([
                 'user_id' => $request->user_id,
+                'leave_app_id'=> $leave_application->id,
                 'leave_type' => $request->leave_type, 
                 'number_of_days' => $request->num_of_days, 
                 'message'=>'success'], 
