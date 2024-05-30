@@ -19,5 +19,9 @@ class Leave_applicants extends Model
         'sign'
     ];
 
+    public function departments(){
+        return $this->hasOne(Departments::class, 'id', 'department');
+    }
+
 
 }

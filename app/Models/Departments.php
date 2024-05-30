@@ -13,4 +13,14 @@ class Departments extends Model
         'department_name',
         'status',
     ];
+
+    public function leaveApplicants(){
+        return $this->belongsTo(Leave_applicants::class);
+    }
+
+    public static function getDepartmentName($department_id){
+        $department = Departments::where('id', $department_id)->get();
+
+        return $department[0]->department_name;
+    }
 }

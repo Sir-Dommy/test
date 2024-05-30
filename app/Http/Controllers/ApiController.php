@@ -7,6 +7,7 @@ use App\Models\Personal_detail;
 use App\Models\User;
 use App\Models\Audit;
 use App\Models\Attendance;
+use App\Models\Departments;
 use App\Models\Leave_applicants;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -76,6 +77,7 @@ class ApiController extends Controller
             $user = Auth::user();
 
             $all = User::find($user->id);
+            $departments = Departments::select('id', 'department_name')->get();
             $user_exists = "new_user";
             if(count(Leave_applicants::where('external_id', $user->id)->get()) > 0){
                 $user_exists = "mwenyeji";  
@@ -85,12 +87,13 @@ class ApiController extends Controller
             return response()->json([
                 'user_id'=>$user->id,
                 'roles'=>$roles,
+                'user_exists'=>$user_exists,
+                'departments' => $departments,
                 'authorzation'=> [
                     'token' => $token,
                     'type' =>'bearer',
                 ],
                 'message'=>'Logged Successfuly',
-                'user_exists'=>$user_exists,
             ], 200);
         }
         catch (\Exception $e){

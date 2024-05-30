@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Personal_detail;
 use App\Models\Audit;
+use App\Models\Departments;
 use App\Models\User;
 use App\Models\Leave_applicants;
 use App\Models\Leave_types;
@@ -28,7 +29,7 @@ class LeaveController extends Controller
 
     public function test(){
         // return Audit::checkAvailableDays(987, 4);
-        return Audit::listHod();
+        return Audit::adminList();
         return Audit::getUserLeaves(167);
     }
 
@@ -53,7 +54,7 @@ class LeaveController extends Controller
                     "job_id" => $applicant[0]->p_no,
                     "name" => $applicant[0]->name,
                     "gender" => $applicant[0]->gender,
-                    "department" => $applicant[0]->department,
+                    "department" => Departments::getDepartmentName($applicant[0]->department),
                     "postal_address" => $applicant[0]->postal_address,
                     "mobile_no" => $applicant[0]->mobile_no,
                     "leave_types" => $details,
@@ -123,10 +124,10 @@ class LeaveController extends Controller
                 'user_id' => 'required|integer|min:1|exists:users,id|unique:leave_applicants,external_id',
                 'name' => 'required|string|min:3|max:70',
                 'gender' => 'required|string|min:3|max:10',
-                'department' => 'required|string|min:3|max:100',
+                'department' => 'required|integer|min:1|exists:departments,id',
                 'postal_address' => 'required|string|min:3|max:200',
                 'mobile_no' => 'required|string|min:9|max:14',
-                'sign' => 'required|string',
+                'sign' => 'required',
             ]);
 
             // insert new applicant
@@ -140,6 +141,19 @@ class LeaveController extends Controller
                 'mobile_no'=> $request->mobile_no,
                 'sign'=> $request->sign,
                 ]);
+
+            DB::commit();
+
+            Audit::auditLog($request->user_id, "CREATING", "Create profile as leave applicant");
+            return response()->json([
+                'user_id'=> $request->user_id,
+                'name'=> $request->name,
+                'gender'=>$request->gender,
+                'department'=> $request->department,
+                'postal_address'=> $request->postal_address,
+                'mobile_no'=> $request->mobile_no,
+                'message'=>"success",
+            ], 200);
         }
         catch(ValidationException $e){
             return response()->json(['validation error' => $e->getMessage()], 422);
@@ -171,19 +185,20 @@ class LeaveController extends Controller
             if(count($existing_leaves) > 0){
                 return response()->json(['message' => 'existing leave application exists pending approval cancel or wait'], 403);
             }
-            
+            $date = Carbon::now()->format('Y-m-d');
+
             DB::beginTransaction();
             // Leave_applicants::where
             $applicant = Leave_applicants::where('external_id', $request->user_id)->get();
             if(count($applicant)<1){
                 $request->validate([
-                    'user_id' => 'required|integer|min:1',
+                    'user_id' => 'required|integer|min:1|exists:users,id|unique:leave_applicants,external_id',
                     'name' => 'required|string|min:3|max:70',
                     'gender' => 'required|string|min:3|max:10',
-                    'department' => 'required|string|min:3|max:100',
+                    'department' => 'required|integer|min:1|exists:departments,id',
                     'postal_address' => 'required|string|min:3|max:200',
                     'mobile_no' => 'required|string|min:9|max:14',
-                    'sign' => 'required|string',
+                    'sign' => 'required',
                 ]);
                 
                 Leave_applicants::create([
@@ -200,13 +215,12 @@ class LeaveController extends Controller
             $request->validate([
                 'user_id' => 'required|integer|min:1',
                 'designation' => 'required|string|min:3|max:50',
-                'leave_type' => 'required|integer|min:1',
+                'leave_type' => 'required|integer|min:1|exists:leave_types,id',
                 'num_of_days' => 'required|integer|min:1|max:'.Audit::daysYouCanApplyFor($request->user_id, $request->leave_type),
                 'leave_begins_on' => 'required|date|after_or_equal:today',
                 'leave_address' => 'required|string|min:3|max:200',
                 'salary_paid_to' => 'required',
                 'account_no' => 'string|min:3|max:50',
-                'date' => 'required|date|after_or_equal:today',
             ]);
 
             Leave_applications::create([
@@ -218,8 +232,8 @@ class LeaveController extends Controller
                 'leave_address'=>$request->leave_address,
                 'salary_paid_to'=>$request->salary_paid_to,
                 'account_no'=>$request->account_no,
-                'date'=>$request->date,
-                'signed'=>$request->signed,
+                'date'=>$date,
+                'signed'=>1,
                 // 'stage'=>$request->stage,
                 // 'status'=>$request->status,
                 ]); 
@@ -558,7 +572,7 @@ class LeaveController extends Controller
                     'user_job_id' => $user[0]->job_id,
                     'user_mobile_no' => $user[0]->mobile_no,
                     'user_desgnation' => $leave_details[0]->designation,
-                    'user_department' => $leave_details[0]->department,
+                    'user_department' => Departments::getDepartmentName($leave_details[0]->department),
                     'user_num_of_days' => $leave_details[0]->num_of_days,
                     'user_leave_begin_on' => $leave_details[0]->leave_begins_on,
                     'user_last_leave_taken_from' => isset($last_leave->leave_start_date) > 0 ? $last_leave->leave_start_date : "None" ,
@@ -571,7 +585,7 @@ class LeaveController extends Controller
                     
                     'hod_approved_by' => $hod[0]->name,
                     'hod_recommend_other' => $hod[0]->recommend_other,
-                    'hod_station' => $user[0]->department,
+                    'hod_station' => Departments::getDepartmentName($user[0]->department),
                     'hod_date' => $hod[0]->date,
                     'hod_sign' => $hod[0]->sign,
                     
