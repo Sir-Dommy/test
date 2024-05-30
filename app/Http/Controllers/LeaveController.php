@@ -845,7 +845,7 @@ class LeaveController extends Controller
             if(isset($request->approved) && $request->approved ==1 && $request->rejected ==0 ){
                 $approved = $request->user_id;
             }
-            elseif(isset($request->rejected) && $request->rejected ==1 && $request->approved ==0 ){
+            else if(isset($request->rejected) && $request->rejected ==1 && $request->approved ==0 ){
                 $rejected = $request->user_id;
             }
             else{
