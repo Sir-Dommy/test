@@ -839,16 +839,14 @@ class LeaveController extends Controller
                 return response()->json(['Error!!!' => "You cannot modify leave which is already at hrmd action stage!!!"], 422);
             }
 
-            $approved = User::getUserId();
-            $rejected = User::getUserId();
+            $approved = null;
+            $rejected = null;
             $date = Carbon::now()->format('Y-m-d');
             if(isset($request->approved) && $request->approved ==1 && $request->rejected ==0 ){
                 $approved = $request->user_id;
-                $rejected =  null;
             }
             else if(isset($request->rejected) && $request->rejected ==1 && $request->approved ==0 ){
                 $rejected = $request->user_id;
-                $approved = null;
             }
             else{
                 return response()->json(['validation error' => "either approved or rejected must be set and only one should be set to true"], 422);
@@ -858,6 +856,7 @@ class LeaveController extends Controller
             $all = Ps_profiles::where('external_id',$request->leave_app_id)
                         ->get();
             if(count($all)>0){
+                
                 DB::beginTransaction();
                 Ps_profiles::where('external_id', $request->leave_app_id)
                     ->update([
@@ -886,6 +885,7 @@ class LeaveController extends Controller
                 DB::commit();
             }
             else{
+                return $rejected;
                 DB::beginTransaction();
                 Ps_profiles::create([
                     'approved_by'=>$approved,
