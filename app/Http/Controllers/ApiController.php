@@ -7,6 +7,7 @@ use App\Models\Personal_detail;
 use App\Models\User;
 use App\Models\Audit;
 use App\Models\Attendance;
+use App\Models\Leave_applicants;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -75,6 +76,10 @@ class ApiController extends Controller
             $user = Auth::user();
 
             $all = User::find($user->id);
+            $user_exists = "new_user";
+            if(count(Leave_applicants::where('external_id', $user->id)->get()) > 0){
+                $user_exists = "mwenyeji";  
+            }
             $roles = $all->getRoleNames()[0];
             Audit::auditLog($request->job_id, "POST", "Logged in");
             return response()->json([
@@ -84,7 +89,9 @@ class ApiController extends Controller
                     'token' => $token,
                     'type' =>'bearer',
                 ],
-                'message'=>'Logged Successfuly'], 200);
+                'message'=>'Logged Successfuly',
+                'user_exists'=>$user_exists,
+            ], 200);
         }
         catch (\Exception $e){
             return response()->json(['Error!!!' => $e->getMessage()], 500);
