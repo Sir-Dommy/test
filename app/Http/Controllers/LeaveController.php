@@ -1072,6 +1072,10 @@ class LeaveController extends Controller
                 return response()->json(['validation error' => "leave application does not exist or not yet approved by PS"], 422);
             }
             $leave_type = Leave_applications::where('id', $request->leave_app_id)->get();
+            
+            $num_of_days = $leave_type[0]->num_of_days;
+
+            $leave_begins_on = $leave_type[0]->leave_begins_on;
 
             $leave_type = $leave_type[0]->leave_type;
 
@@ -1090,6 +1094,9 @@ class LeaveController extends Controller
                 if(!isset($request->leave_start_date) || !isset($request->num_of_days)){
                     return response()->json(['validatio error' => "if either leave_start_date or num_of_days is given, both must have values"], 422);
                 }
+                $num_of_days = $request->num_of_days;
+
+                $leave_begins_on = $request->leave_start_date;
             }
 
             $approved = null;
@@ -1109,11 +1116,11 @@ class LeaveController extends Controller
 
             if(count($all) < 1){
                 DB::beginTransaction();
-                $to_resume_on = Audit::calculateEndDate($request->leave_start_date, $request->num_of_days);
+                $to_resume_on = Audit::calculateEndDate($leave_begins_on, $num_of_days);
                 Hrmd_profiles::create([
                     'external_id'=> $request->leave_app_id,
-                    'leave_start_date'=> $request->leave_start_date,
-                    'num_of_days'=> $request->num_of_days,
+                    'leave_start_date'=> $leave_begins_on,
+                    'num_of_days'=> $num_of_days,
                     'to_resume_on'=> $to_resume_on,
                     'date'=> $date,
                     'signed'=> 1,
@@ -1141,11 +1148,11 @@ class LeaveController extends Controller
 
             else{
                 DB::beginTransaction();
-                $to_resume_on = Audit::calculateEndDate($request->leave_start_date, $request->num_of_days);
+                $to_resume_on = Audit::calculateEndDate($leave_begins_on, $num_of_days);
                 Hrmd_profiles::where('external_id', $request->leave_app_id)
                     ->update([
-                        'leave_start_date'=> $request->leave_start_date,
-                        'num_of_days'=> $request->num_of_days,
+                        'leave_start_date'=> $leave_begins_on,
+                        'num_of_days'=> $num_of_days,
                         'to_resume_on'=> $to_resume_on,
                         'date'=> $date,
                         'signed'=> 1,
