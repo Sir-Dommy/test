@@ -239,9 +239,11 @@ class LeaveController extends Controller
                 ]); 
 
             if(User::getUser()->hasRole('hod') || User::getUser()->hasRole('sa')){
-                Ps_profiles::create([
+                Hod_profiles::create([
                     'external_id'=> $leave_application->id,
                     'date'=> $date,
+                    'approved_by'=>$request->user_id,
+                    'signed'=>1,
                 ]);
             }
                 
