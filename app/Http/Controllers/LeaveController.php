@@ -117,6 +117,39 @@ class LeaveController extends Controller
             ]);
     }
     
+    public function createApplicant(Request $request){
+        try{
+            $request->validate([
+                'user_id' => 'required|integer|min:1|exists:users,id|unique:leave_applicants,external_id',
+                'name' => 'required|string|min:3|max:70',
+                'gender' => 'required|string|min:3|max:10',
+                'department' => 'required|string|min:3|max:100',
+                'postal_address' => 'required|string|min:3|max:200',
+                'mobile_no' => 'required|string|min:9|max:14',
+                'sign' => 'required|string',
+            ]);
+
+            // insert new applicant
+            DB::beginTransaction();
+            Leave_applicants::create([
+                'external_id'=> $request->user_id,
+                'name'=> $request->name,
+                'gender'=>$request->gender,
+                'department'=> $request->department,
+                'postal_address'=> $request->postal_address,
+                'mobile_no'=> $request->mobile_no,
+                'sign'=> $request->sign,
+                ]);
+        }
+        catch(ValidationException $e){
+            return response()->json(['validation error' => $e->getMessage()], 422);
+        }
+        
+        catch (\Exception $e){
+            DB::rollBack();
+            return response()->json(['Error!!!' => $e->getMessage()], 500);
+        }
+    }
     //submit personal details
     public function submitDetails(Request $request){
         try{

@@ -94,6 +94,7 @@ Route::middleware('jwt.auth')->group(function(){
 
 
     // All these routes serve leave application module
+    Route::post('/createApplicant', [LeaveController::class, 'createApplicant']);
     Route::get('/applyLeave', [LeaveController::class, 'applyLeave']);
     Route::get('/getLeaveApplications/{user_id}', [LeaveController::class, 'getLeaveApplications']);
     Route::get('/getMyLeaves', [LeaveController::class, 'getMyLeaves']);
