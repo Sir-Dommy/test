@@ -522,6 +522,7 @@ class LeaveController extends Controller
                     'user_id' => $user[0]->external_id,
                     'user_name' => $user[0]->name,
                     'user_job_id' => $user[0]->job_id,
+                    'user_job_id' => $user[0]->mobile_no,
                     'user_desgnation' => $leave_details[0]->designation,
                     'user_num_of_days' => $leave_details[0]->num_of_days,
                     'user_leave_begin_on' => $leave_details[0]->leave_begins_on,
@@ -827,7 +828,7 @@ class LeaveController extends Controller
                     Leave_applications::where('id',$request->leave_app_id)
                     ->update([
                         'stage'=> 3,
-                        'status'=> 1,
+                        'status'=> 0,
                         ]);
                 }      
                 // Commit the transaction if all operations are successful
@@ -854,7 +855,7 @@ class LeaveController extends Controller
                     Leave_applications::where('id',$request->leave_app_id)
                     ->update([
                         'stage'=> 3,
-                        'status'=> 1,
+                        'status'=> 0,
                         ]);
                 }       
                 // Commit the transaction if all operations are successful
