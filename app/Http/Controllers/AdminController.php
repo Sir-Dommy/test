@@ -88,7 +88,7 @@ class AdminController extends Controller
             $request->validate([
                 'user_id' => 'required|integer|min:1|exists:users,id',
                 // 'name' => 'required|string|min:1|max:70',
-                'department' => 'required|integer|min:1|max:150|exists:departments,id',
+                'department' => 'required|integer|min:1|exists:departments,id',
                 'role' => 'required|string|min:1|max:20|exists:roles,name',
             ]);
 
