@@ -245,6 +245,11 @@ class LeaveController extends Controller
                     'approved_by'=>$request->user_id,
                     'signed'=>1,
                 ]);
+
+                Leave_applications::where('id', $leave_application->id)
+                    ->update([
+                        'stage'=>2,
+                    ]);
             }
                 
             // Commit the transaction if all operations are successful
