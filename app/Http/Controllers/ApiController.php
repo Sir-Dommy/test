@@ -82,7 +82,15 @@ class ApiController extends Controller
             if(count(Leave_applicants::where('external_id', $user->id)->get()) > 0){
                 $user_exists = "mwenyeji";  
             }
-            $roles = $all->getRoleNames()[0];
+
+            $roles = null;
+            if(count($all->getRoleNames()) > 0){
+                $roles = $all->getRoleNames()[0];
+            }
+            else{
+                $roles = "employee";
+            }
+            
             Audit::auditLog($request->job_id, "POST", "Logged in");
             return response()->json([
                 'user_id'=>$user->id,

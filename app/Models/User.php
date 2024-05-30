@@ -75,7 +75,7 @@ class User extends Authenticatable implements JWTSubject
     }
     public static function getDepartment(){
         $token = JWTAuth::parseToken()->getPayload()->toArray();//$token['sub']
-        $department = Leave_applicants::where('external_id',110)
+        $department = Leave_applicants::where('external_id',User::getUserId())
         ->get('department');
         if(count($department) > 0){
             return $department[0]->department;
