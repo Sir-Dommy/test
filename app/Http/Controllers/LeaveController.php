@@ -650,7 +650,7 @@ class LeaveController extends Controller
                     
                     Leave_applications::where('id',$request->leave_app_id)
                         ->update([
-                            'stage'=> 2,
+                            'stage'=> 1,
                             'status'=>2,
                             ]);
                             
@@ -693,7 +693,7 @@ class LeaveController extends Controller
                     
                     Leave_applications::where('id',$request->leave_app_id)
                         ->update([
-                            'stage'=> 2,
+                            'stage'=> 1,
                             'status'=>2,
                             ]);
                             
@@ -822,7 +822,7 @@ class LeaveController extends Controller
                 if(isset($rejected)){
                     Leave_applications::where('id',$request->leave_app_id)
                     ->update([
-                        'stage'=> 3,
+                        'stage'=> 2,
                         'status'=> 2,
                         ]);
                 }  
@@ -849,7 +849,7 @@ class LeaveController extends Controller
                 if(isset($rejected)){
                     Leave_applications::where('id',$request->leave_app_id)
                     ->update([
-                        'stage'=> 3,
+                        'stage'=> 2,
                         'status'=> 2,
                         ]);
                 }  
@@ -1077,7 +1077,7 @@ class LeaveController extends Controller
                 if(isset($rejected)){
                     Leave_applications::where('id',$request->leave_app_id)
                     ->update([
-                        'stage'=> 4,
+                        'stage'=> 3,
                         'status'=> 2,
                         ]);
                 }  
@@ -1109,7 +1109,7 @@ class LeaveController extends Controller
                 if(isset($rejected)){
                     Leave_applications::where('id',$request->leave_app_id)
                     ->update([
-                        'stage'=> 4,
+                        'stage'=> 3,
                         'status'=> 2,
                         ]);
                 }
