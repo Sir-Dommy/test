@@ -852,7 +852,10 @@ class LeaveController extends Controller
                 return response()->json(['validation error' => "either approved or rejected must be set and only one should be set to true"], 422);
             }
             
-            
+            return [
+                "user_ida"=> $approved,
+                "user_idr"=> $rejected,
+            ];
             $all = Ps_profiles::where('external_id',$request->leave_app_id)
                         ->get();
             if(count($all)>0){
