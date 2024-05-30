@@ -172,7 +172,7 @@ class LeaveController extends Controller
                 'leave_begins_on' => 'required|date|after_or_equal:today',
                 'leave_address' => 'required|string|min:3|max:200',
                 'salary_paid_to' => 'required',
-                'account_no' => 'required',
+                'account_no' => 'string|min:3|max:50',
                 'date' => 'required|date|after_or_equal:today',
             ]);
 
