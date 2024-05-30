@@ -888,7 +888,7 @@ class LeaveController extends Controller
                 // return $rejected;
                 DB::beginTransaction();
                 Ps_profiles::create([
-                    'approved_by'=>$approved,
+                    'approved_by'=>6,
                     'rejected_by'=>5,
                     'external_id'=>$request->leave_app_id,
                     'date'=>$date,
