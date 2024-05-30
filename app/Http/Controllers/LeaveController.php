@@ -29,7 +29,7 @@ class LeaveController extends Controller
 
     public function test(){
         // return Audit::checkAvailableDays(987, 4);
-        return User::getDepartment();
+        return User::getUser()->getRoleNames();
         return Audit::getUserLeaves(167);
     }
 

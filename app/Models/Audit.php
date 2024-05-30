@@ -609,12 +609,12 @@ class Audit extends Model
             ->join('leave_applications', 'ps_profiles.external_id', '=', 'leave_applications.id')
             ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
             ->join('departments', 'applicant.department', '=', 'departments.id')
-            ->join('leave_applicants AS ps', 'ps_profiles.approved_by', '=', 'ps.external_id')
+            ->join('leave_applicants AS ps', 'ps_profiles.rejected_by', '=', 'ps.external_id')
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
             ->join('hod_profiles', 'leave_applications.id', '=', 'hod_profiles.external_id')
             ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
             ->join('users', 'applicant.external_id', '=', 'users.id')
-            ->whereNotNull('ps_profiles.rejected_by')
+            ->whereNull('ps_profiles.approved_by')
             ->select(
                 'leave_applications.id AS id',
                 'users.id as user_id',
@@ -670,7 +670,7 @@ class Audit extends Model
                 )
             ->limit(250);
             // ->get();
-        
+            
         return $ps_approved->union($ps_rejected)->union($hod_profiles)->get();
     }
 
