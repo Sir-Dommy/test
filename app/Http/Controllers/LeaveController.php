@@ -1498,6 +1498,11 @@ class LeaveController extends Controller
     public function hrmdCheckPsProfile(){
         return response()->json(Audit::listPs());
     }
+
+    //function to approve on behalf of ps
+    public function approveOnBehalfOfPs(){
+        return response()->json(Audit::listPs());
+    }
     
        
 }
