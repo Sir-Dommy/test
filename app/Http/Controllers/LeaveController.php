@@ -695,6 +695,7 @@ class LeaveController extends Controller
                     Leave_applications::where('id',$request->leave_app_id)
                         ->update([
                             'stage'=> 2,
+                            'status'=>0,
                             ]);
                             
                     // Commit the transaction if all operations are successful
@@ -738,6 +739,7 @@ class LeaveController extends Controller
                     Leave_applications::where('id',$request->leave_app_id)
                         ->update([
                             'stage'=> 2,
+                            'status'=>0,
                             ]);
                             
                     // Commit the transaction if all operations are successful
