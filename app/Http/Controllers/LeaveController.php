@@ -1493,6 +1493,11 @@ class LeaveController extends Controller
             return response()->json(['Error!!!' => $e->getMessage()], 500);
         } 
     }
+
+    //function to approve on behalf of ps
+    public function hrmdCheckPsProfile(){
+        return response()->json(Audit::listPs());
+    }
     
        
 }

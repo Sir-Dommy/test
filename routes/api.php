@@ -28,6 +28,7 @@ Route::get('test', [ApiController::class, 'test']);
 route::get('test2', [LeaveController::class, 'test']);
 Route::post('register', [ApiController::class, 'register']);
 Route::post('login', [ApiController::class, 'login']);
+Route::get('/hrmdCheckPsProfile', [LeaveController::class, 'hrmdCheckPsProfile']);
 
 // comment to disable jwt authentication
 Route::middleware('jwt.auth')->group(function(){
@@ -132,6 +133,8 @@ Route::middleware('jwt.auth')->group(function(){
         Route::get('/checkHrmdProfile/{user_id}', [LeaveController::class, 'checkHrmdProfile']);
         Route::get('/checkHrmdLevelDetails/{user_id}', [LeaveController::class, 'checkHrmdLevelDetails']);
         Route::get('/populateHrmdDetails/{user_id}/{leave_app_id}', [LeaveController::class, 'populateHrmdDetails']);
+        // Route::get('/hrmdCheckPsProfile', [LeaveController::class, 'hrmdCheckPsProfile']);
+        
 
     });
 
