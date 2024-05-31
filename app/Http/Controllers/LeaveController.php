@@ -557,6 +557,7 @@ class LeaveController extends Controller
             $leave_details = Leave_applications::where('id', $leave_app_id)
                 ->get();
             
+            
             $user = Leave_applicants::join('users', 'leave_applicants.external_id', '=', 'users.id')
                     ->where('external_id',$leave_details[0]->external_id)
                     ->select('leave_applicants.external_id','leave_applicants.name','leave_applicants.department','leave_applicants.postal_address','leave_applicants.mobile_no','leave_applicants.sign', 'users.job_id')
@@ -571,10 +572,10 @@ class LeaveController extends Controller
                 ->where('ps_profiles.external_id',$leave_app_id)
                 ->select('ps_profiles.date', 'leave_applicants.name', 'leave_applicants.sign')
                 ->get();
-                
+            
+            
             $leave_days = Leave_types::where('id', $leave_details[0]->leave_type)->get();
                 
-            
             $last_leave = Hrmd_profiles::where('date', '<', $hrmd[0]->date)
                 ->orderBy('date', 'desc') // Sort by date in descending order
                 ->first();
@@ -588,7 +589,7 @@ class LeaveController extends Controller
                     'user_job_id' => $user[0]->job_id,
                     'user_mobile_no' => $user[0]->mobile_no,
                     'user_desgnation' => $leave_details[0]->designation,
-                    'user_department' => Departments::getDepartmentName($leave_details[0]->department),
+                    'user_department' => Departments::getDepartmentName($user[0]->department),
                     'user_num_of_days' => $leave_details[0]->num_of_days,
                     'user_leave_begin_on' => $leave_details[0]->leave_begins_on,
                     'user_last_leave_taken_from' => isset($last_leave->leave_start_date) > 0 ? $last_leave->leave_start_date : "None" ,
