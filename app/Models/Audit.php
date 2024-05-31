@@ -708,7 +708,7 @@ class Audit extends Model
             ->join('leave_applications', 'hod_profiles.external_id', '=', 'leave_applications.id')
             ->join('leave_applicants AS applicant', 'leave_applications.external_id', '=', 'applicant.external_id')
             ->join('departments', 'applicant.department', '=', 'departments.id')
-            ->join('leave_applicants AS hod', 'hod_profiles.approved_by', '=', 'hod.external_id')
+            ->join('leave_applicants AS hod', 'hod_profiles.rejected_by', '=', 'hod.external_id')
             ->join('leave_types', 'leave_applications.leave_type', '=', 'leave_types.id')
             ->join('users', 'applicant.external_id', '=', 'users.id')
             ->whereNotNull('hod_profiles.rejected_by')
