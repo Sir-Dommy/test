@@ -133,6 +133,7 @@ Route::middleware('jwt.auth')->group(function(){
         Route::get('/checkHrmdLevelDetails/{user_id}', [LeaveController::class, 'checkHrmdLevelDetails']);
         Route::get('/populateHrmdDetails/{user_id}/{leave_app_id}', [LeaveController::class, 'populateHrmdDetails']);
         Route::get('/hrmdCheckPsProfile', [LeaveController::class, 'hrmdCheckPsProfile']);
+        Route::put('/approveOnBehalfOfPs', [LeaveController::class, 'approveOnBehalfOfPs']);
         
 
     });
