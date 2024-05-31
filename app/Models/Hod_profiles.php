@@ -11,6 +11,7 @@ class Hod_profiles extends Model
     
     public $fillable = [
         'approved_by',
+        'rejected_by',
         'external_id',
         'recommend_other',
         'date',
