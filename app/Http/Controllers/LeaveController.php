@@ -571,8 +571,23 @@ class LeaveController extends Controller
             
             $ps = Ps_profiles::join('leave_applicants', 'ps_profiles.approved_by', '=', 'leave_applicants.external_id')
                 ->where('ps_profiles.external_id',$leave_app_id)
-                ->select('ps_profiles.date', 'leave_applicants.name', 'leave_applicants.sign')
+                ->select('ps_profiles.date', 'leave_applicants.name', 'leave_applicants.sign', 'ps_profiles.approved_by', 'ps_profiles.rejected_by')
                 ->get();
+
+            $ps_approved_by = null;
+            $ps_rejected_by = null;
+            if(isset($ps[0]->approved_by)){
+                $ps_approved_by = $ps[0]->name." on behalf of PS";
+                if(User::find($ps[0]->approved_by)->hasRole('ps')){
+                    $ps_approved_by = $ps[0]->name;
+                }
+            }
+            else if(isset($ps[0]->rejected_by)){
+                $ps_rejected_by = $ps[0]->name." on behalf of PS";
+                if(User::find($ps[0]->approved_by)->hasRole('ps')){
+                    $ps_rejected_by = $ps[0]->name;
+                }
+            }
             
             
             $leave_days = Leave_types::where('id', $leave_details[0]->leave_type)->get();
@@ -607,7 +622,7 @@ class LeaveController extends Controller
                     'hod_date' => $hod[0]->date,
                     'hod_sign' => $hod[0]->sign,
                     
-                    'ps_approved_by' => $ps[0]->name,
+                    'ps_approved_by' => $ps_approved_by,
                     'ps_date' => $ps[0]->date,
                     'ps_sign' => $ps[0]->sign,
                     
