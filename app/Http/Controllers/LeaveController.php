@@ -249,6 +249,7 @@ class LeaveController extends Controller
                 Leave_applications::where('id', $leave_application->id)
                     ->update([
                         'stage'=>2,
+                        'status'=>0,
                     ]);
             }
                 
