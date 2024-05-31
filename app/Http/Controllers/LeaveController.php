@@ -1501,7 +1501,7 @@ class LeaveController extends Controller
 
     //function to approve on behalf of ps
     public function approveOnBehalfOfPs(Request $request){
-        return response()->json($this->psApproveReject($request));
+        return $this->psApproveReject($request);
     }
     
        
